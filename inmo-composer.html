@@ -418,16 +418,19 @@
               <span class="text-muted" style="font-size: 0.7rem;" id="project-id-display">ID: ...</span>
             </div>
             <div class="row g-2">
-              <div class="col-8">
-                <select id="project-selector" class="form-select form-select-sm" onchange="loadSelectedProject()" title="Cambiar a otro borrador guardado">
-                  <option value="">-- Cambiar Borrador --</option>
+              <div class="col-12">
+                <select id="project-selector" class="form-select form-select-sm" title="Seleccionar un borrador de la lista">
+                  <option value="">-- Seleccionar Borrador --</option>
                 </select>
               </div>
-              <div class="col-4 d-flex gap-1">
-                <button class="btn btn-sm btn-blue w-100 py-1" onclick="createNewProjectBtn()" title="Crear Nuevo Proyecto">
+              <div class="col-12 d-flex gap-1 mt-1">
+                <button class="btn btn-sm btn-gold w-100 py-1 d-flex align-items-center justify-content-center gap-1" onclick="loadSelectedProject()" title="Activar/Cargar borrador seleccionado">
+                  <i class="fa-solid fa-folder-open"></i> Activar Borrador
+                </button>
+                <button class="btn btn-sm btn-blue py-1 px-3 d-flex align-items-center justify-content-center gap-1" onclick="createNewProjectBtn()" title="Crear Nuevo Proyecto">
                   <i class="fa-solid fa-plus"></i> Nuevo
                 </button>
-                <button class="btn btn-sm btn-outline-danger py-1" onclick="deleteCurrentProjectBtn()" title="Eliminar este Proyecto">
+                <button class="btn btn-sm btn-outline-danger py-1 px-2 d-flex align-items-center justify-content-center" onclick="deleteCurrentProjectBtn()" title="Eliminar este Proyecto">
                   <i class="fa-solid fa-trash-can"></i>
                 </button>
               </div>
@@ -923,7 +926,7 @@
         // Opción por defecto
         const defaultOpt = document.createElement('option');
         defaultOpt.value = '';
-        defaultOpt.innerText = '-- Cambiar Borrador --';
+        defaultOpt.innerText = '-- Seleccionar Borrador --';
         selector.appendChild(defaultOpt);
         
         projects.sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
@@ -1055,7 +1058,10 @@
     // Cargar proyecto seleccionado en el selector dropdown
     function loadSelectedProject() {
       const id = document.getElementById('project-selector').value;
-      if (!id) return;
+      if (!id) {
+        alert('Por favor, selecciona primero un borrador de la lista desplegable.');
+        return;
+      }
       
       showLoading(true, 'Cargando borrador del inmueble...');
       db.getProject(id).then(project => {
