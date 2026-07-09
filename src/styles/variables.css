@@ -1,0 +1,111 @@
+/* Design System - Premium Real Estate Tours Visualizer */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+
+:root {
+  /* Color Palette - HSL (Premium Dark & Gold Champagne Themes) */
+  --bg-primary-hsl: 220, 15%, 8%;
+  --bg-secondary-hsl: 220, 15%, 12%;
+  
+  --bg-primary: hsl(var(--bg-primary-hsl));
+  --bg-secondary: hsl(var(--bg-secondary-hsl));
+  
+  /* Accent: Champagne Gold */
+  --accent-gold-hsl: 45, 60%, 53%;
+  --accent-gold: hsl(var(--accent-gold-hsl));
+  --accent-gold-light: hsl(45, 60%, 75%);
+  --accent-gold-dark: hsl(45, 60%, 35%);
+  
+  /* Semantic Colors */
+  --text-primary: hsl(220, 10%, 95%);
+  --text-secondary: hsl(220, 10%, 70%);
+  --text-muted: hsl(220, 10%, 45%);
+  
+  --success: hsl(140, 60%, 45%);
+  --error: hsl(350, 70%, 50%);
+  --info: hsl(200, 70%, 50%);
+
+  /* Glassmorphism Presets */
+  --glass-bg: rgba(15, 18, 25, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-gold: rgba(212, 175, 55, 0.15);
+  --glass-backdrop-filter: blur(12px) saturate(160%);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+
+  /* Typography */
+  --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-xxl: 3rem;
+
+  /* Border Radii */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  /* Micro-Animations & Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 500ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Base Global Setup */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Helper Glassmorphism Utility Classes */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop-filter);
+  -webkit-backdrop-filter: var(--glass-backdrop-filter);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: var(--radius-lg);
+  color: var(--text-primary);
+}
+
+.glass-panel-gold {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop-filter);
+  -webkit-backdrop-filter: var(--glass-backdrop-filter);
+  border: 1px solid var(--glass-border-gold);
+  box-shadow: var(--glass-shadow);
+  border-radius: var(--radius-lg);
+  color: var(--text-primary);
+}
+
+/* Pulse animation for hotspots */
+@keyframes hotspot-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(212, 175, 55, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
+  }
+}
+
+.hotspot-pulsing {
+  animation: hotspot-pulse 2s infinite;
+}

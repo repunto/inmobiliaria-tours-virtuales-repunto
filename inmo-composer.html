@@ -1,0 +1,2146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Centro de Operaciones Inmobiliarias - InmoComposer</title>
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- FontAwesome 6 Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  
+  <!-- Pannellum 360 Viewer CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css"/>
+  
+  <!-- Premium Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-primary: #0a0c10;
+      --bg-secondary: #10141b;
+      --bg-panel: #161c24;
+      --accent-gold: #d4af37;
+      --accent-gold-hover: #bda030;
+      --accent-blue: #2563eb;
+      --accent-blue-hover: #1d4ed8;
+      --text-main: #f3f4f6;
+      --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --glass-bg: rgba(22, 28, 36, 0.7);
+      --glass-border: rgba(212, 175, 55, 0.15);
+      --glass-backdrop: blur(12px);
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      margin: 0;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-primary);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-gold);
+    }
+
+    /* Layout Split-Screen */
+    .app-container {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* Panel Izquierdo */
+    .panel-config {
+      width: 40%;
+      min-width: 480px;
+      background-color: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .panel-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      background-color: var(--bg-primary);
+    }
+
+    .panel-content {
+      padding: 1.5rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    /* Panel Derecho */
+    .panel-viewer {
+      width: 60%;
+      background-color: var(--bg-primary);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      position: relative;
+    }
+
+    /* Form Styles */
+    .card-section {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--accent-gold);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.5rem;
+    }
+
+    .form-label {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 0.4rem;
+    }
+
+    .form-control, .form-select {
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      font-size: 0.9rem;
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+    }
+
+    .form-control:focus, .form-select:focus {
+      background-color: var(--bg-primary);
+      border-color: var(--accent-gold);
+      box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+      color: var(--text-main);
+    }
+
+    /* Drag and Drop Box */
+    .drag-drop-box {
+      border: 2px dashed var(--border-color);
+      border-radius: 8px;
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background-color: rgba(10, 12, 16, 0.5);
+    }
+
+    .drag-drop-box:hover, .drag-drop-box.dragover {
+      border-color: var(--accent-gold);
+      background-color: rgba(212, 175, 55, 0.05);
+    }
+
+    .drag-drop-box i {
+      font-size: 2rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    /* Buttons */
+    .btn-gold {
+      background-color: var(--accent-gold);
+      color: var(--bg-primary);
+      font-weight: 600;
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-gold:hover {
+      background-color: var(--accent-gold-hover);
+      color: var(--bg-primary);
+    }
+
+    .btn-blue {
+      background-color: var(--accent-blue);
+      color: var(--text-main);
+      font-weight: 600;
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-blue:hover {
+      background-color: var(--accent-blue-hover);
+      color: var(--text-main);
+    }
+
+    .btn-outline-custom {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      transition: all 0.2s ease;
+    }
+
+    .btn-outline-custom:hover {
+      border-color: var(--accent-gold);
+      color: var(--accent-gold);
+    }
+
+    /* Viewer Area */
+    .viewer-header {
+      padding: 0.75rem 1.25rem;
+      background-color: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .coordinates-badge {
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.35rem 0.75rem;
+      font-size: 0.8rem;
+      font-family: monospace;
+      color: var(--accent-gold);
+    }
+
+    .viewer-container-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background-color: #050608;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Visor Adaptativo (16:9 y 9:16) */
+    .viewer-container {
+      width: 100%;
+      height: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      position: relative;
+    }
+
+    .viewer-container.aspect-vertical {
+      width: 420px;
+      height: 746px; /* Equivalente a 9:16 escalado */
+      max-height: 90%;
+    }
+
+    #pannellum-viewer {
+      width: 100%;
+      height: 100%;
+      background-color: #000;
+    }
+
+    /* Commercial Info Sheet (Panel Derecho Abajo) */
+    .commercial-sheet-wrapper {
+      background-color: var(--bg-secondary);
+      border-top: 1px solid var(--border-color);
+      padding: 1.5rem;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+
+    .property-title-lux {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      color: var(--accent-gold);
+      margin-bottom: 0.25rem;
+    }
+
+    .property-price-lux {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .feature-badge {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.5rem 0.85rem;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .feature-badge i {
+      color: var(--accent-gold);
+    }
+
+    /* Scene / Hotspot Lists */
+    .list-item-custom {
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .list-item-custom.active-scene {
+      border-color: var(--accent-gold);
+      box-shadow: 0 0 8px rgba(212, 175, 55, 0.15);
+    }
+
+    /* Interactive click notification */
+    .click-helper-toast {
+      position: absolute;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: var(--glass-backdrop);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: var(--accent-gold);
+      pointer-events: none;
+      z-index: 100;
+      box-shadow: var(--glass-shadow);
+      display: none;
+    }
+
+    /* Spinner */
+    .loader-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(10,12,16,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      display: none;
+    }
+
+    .spinner-gold {
+      border: 3px solid rgba(212, 175, 55, 0.1);
+      border-radius: 50%;
+      border-top: 3px solid var(--accent-gold);
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Spinner Loader Overlay -->
+  <div class="loader-overlay" id="loading-spinner">
+    <div class="text-center">
+      <div class="spinner-gold mx-auto mb-3"></div>
+      <p class="small text-secondary" id="loading-text">Cargando...</p>
+    </div>
+  </div>
+
+  <div class="app-container">
+    
+    <!-- ========================================== -->
+    <!-- PANEL IZQUIERDO: CONFIGURACIÓN Y MARKETING -->
+    <!-- ========================================== -->
+    <div class="panel-config">
+      <div class="panel-header d-flex align-items-center justify-content-between">
+        <h1 class="h5 mb-0 fw-bold d-flex align-items-center gap-2">
+          <i class="fa-solid fa-hotel text-warning"></i>
+          <span>InmoComposer</span>
+          <span class="badge bg-dark border border-secondary text-warning" style="font-size: 0.65rem;">v1.0</span>
+        </h1>
+        <div class="d-flex align-items-center gap-1">
+          <!-- Indicador discreto de Auto-Guardado -->
+          <span class="badge bg-dark border border-secondary text-success me-1 d-flex align-items-center gap-1" id="autosave-badge" style="font-size: 0.7rem; font-weight: normal; padding: 4px 8px;">
+            <i class="fa-solid fa-circle" style="font-size: 0.4rem;"></i> Auto-Guardado
+          </span>
+          <!-- Botón de Borradores -->
+          <button class="btn btn-xs btn-outline-custom d-flex align-items-center gap-1" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBorradores" aria-expanded="false" aria-controls="collapseBorradores" title="Historial y Borradores" style="font-size: 0.75rem; padding: 4px 8px;">
+            <i class="fa-solid fa-folder-open text-warning"></i> Borradores
+          </button>
+          <button class="btn btn-xs btn-outline-custom d-flex align-items-center gap-1" onclick="resetApp()" title="Limpiar datos actuales" style="font-size: 0.75rem; padding: 4px 8px;">
+            <i class="fa-solid fa-rotate-left"></i> Limpiar
+          </button>
+        </div>
+      </div>
+
+      <div class="panel-content">
+
+        <!-- Sección Colapsable: Gestor de Proyectos Locales (IndexedDB) -->
+        <div class="collapse" id="collapseBorradores">
+          <div class="card-section border border-primary mb-3" style="background-color: rgba(37, 99, 235, 0.02); margin-top: 10px;">
+            <div class="section-title text-primary d-flex justify-content-between align-items-center" style="border-color: rgba(37, 99, 235, 0.15); margin-bottom: 8px;">
+              <span><i class="fa-solid fa-folder-tree"></i> Historial de Borradores</span>
+            </div>
+            <div class="mb-2 d-flex align-items-center justify-content-between" style="font-size: 0.8rem;">
+              <div>
+                <span class="text-secondary">Editando:</span> 
+                <strong class="text-warning ms-1" id="active-project-name-display">Sin título</strong>
+              </div>
+              <span class="text-muted" style="font-size: 0.7rem;" id="project-id-display">ID: ...</span>
+            </div>
+            <div class="row g-2">
+              <div class="col-8">
+                <select id="project-selector" class="form-select form-select-sm" onchange="loadSelectedProject()" title="Cambiar a otro borrador guardado">
+                  <option value="">-- Cambiar Borrador --</option>
+                </select>
+              </div>
+              <div class="col-4 d-flex gap-1">
+                <button class="btn btn-sm btn-blue w-100 py-1" onclick="createNewProjectBtn()" title="Crear Nuevo Proyecto">
+                  <i class="fa-solid fa-plus"></i> Nuevo
+                </button>
+                <button class="btn btn-sm btn-outline-danger py-1" onclick="deleteCurrentProjectBtn()" title="Eliminar este Proyecto">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección 1: Ficha Comercial -->
+        <div class="card-section">
+          <div class="section-title">
+            <i class="fa-solid fa-file-contract"></i> Ficha Comercial del Inmueble
+          </div>
+          <div class="row g-2">
+            <div class="col-12">
+              <label class="form-label">Título de la Propiedad</label>
+              <input type="text" id="prop-title" class="form-control" placeholder="Ej. Villa Albatros Premium" oninput="updateCommercialSheet()">
+            </div>
+            <div class="col-8">
+              <label class="form-label">Precio de Venta/Alquiler</label>
+              <input type="number" id="prop-price" class="form-control" placeholder="Ej. 450000" oninput="updateCommercialSheet()">
+            </div>
+            <div class="col-4">
+              <label class="form-label">Divisa</label>
+              <select id="prop-currency" class="form-select" onchange="updateCommercialSheet()">
+                <option value="USD">USD ($)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="Local">Local</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Ubicación / Zona</label>
+              <input type="text" id="prop-location" class="form-control" placeholder="Ej. Pedralbes, Barcelona" oninput="updateCommercialSheet()">
+            </div>
+            <div class="col-6">
+              <label class="form-label">Área (m²)</label>
+              <input type="number" id="prop-area" class="form-control" placeholder="Ej. 180" oninput="updateCommercialSheet()">
+            </div>
+            <div class="col-6">
+              <label class="form-label">Habitaciones</label>
+              <input type="number" id="prop-rooms" class="form-control" placeholder="Ej. 4" oninput="updateCommercialSheet()">
+            </div>
+            <div class="col-6">
+              <label class="form-label">Baños</label>
+              <input type="number" id="prop-baths" class="form-control" placeholder="Ej. 3" oninput="updateCommercialSheet()">
+            </div>
+            <div class="col-6">
+              <label class="form-label">Parqueos / Garaje</label>
+              <input type="number" id="prop-parking" class="form-control" placeholder="Ej. 2" oninput="updateCommercialSheet()">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Descripción Comercial (SEO Inmobiliario)</label>
+              <textarea id="prop-description" class="form-control" rows="3" placeholder="Redacta los puntos fuertes del inmueble, acabados, vistas y conectividad..." oninput="updateCommercialSheet()"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección 2: Fotos 360 y Habitaciones de la Propiedad -->
+        <div class="card-section">
+          <div class="section-title d-flex justify-content-between align-items-center">
+            <span><i class="fa-solid fa-camera-retro"></i> Fotos 360° y Espacios de la Propiedad</span>
+            <button class="btn btn-sm btn-gold py-1" onclick="addNewSceneModal()">
+              <i class="fa-solid fa-plus"></i> Añadir Foto
+            </button>
+          </div>
+
+          <div id="scenes-list-container" class="mb-3">
+            <p class="small text-muted text-center py-2" id="no-scenes-msg">Aún no has subido fotos 360° de la propiedad. Haz clic en "Añadir Foto".</p>
+          </div>
+        </div>
+
+        <!-- Sección 3: Enrutador de Espacios (Hotspots) -->
+        <div class="card-section">
+          <div class="section-title">
+            <i class="fa-solid fa-route"></i> Enrutador de Hotspots Interactivos
+          </div>
+          
+          <div class="alert alert-secondary border-0 p-2 mb-3" style="font-size: 0.8rem; background-color: var(--bg-primary);">
+            <i class="fa-solid fa-circle-info text-warning me-1"></i>
+            Haz clic en cualquier punto del visor derecho para capturar automáticamente sus coordenadas.
+          </div>
+
+          <div class="row g-2" id="hotspot-form-container" style="display: none;">
+            <div class="col-6">
+              <label class="form-label">Pitch (Inclinación Vertical)</label>
+              <input type="number" id="hs-pitch" class="form-control" readonly>
+            </div>
+            <div class="col-6">
+              <label class="form-label">Yaw (Rotación Horizontal)</label>
+              <input type="number" id="hs-yaw" class="form-control" readonly>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Tipo de Punto de Interés</label>
+              <select id="hs-type" class="form-select" onchange="toggleHotspotTypeFields()">
+                <option value="navigation">Flecha de Navegación (Ir a escena)</option>
+                <option value="info">Tarjeta de Información (Texto descriptivo)</option>
+              </select>
+            </div>
+            <div class="col-12" id="hs-field-target">
+              <label class="form-label">Escena Destino</label>
+              <select id="hs-target-scene" class="form-select"></select>
+            </div>
+            <div class="col-12" id="hs-field-text" style="display: none;">
+              <label class="form-label">Título del Punto</label>
+              <input type="text" id="hs-title" class="form-control" placeholder="Ej. Encimera de Granito">
+              <label class="form-label mt-2">Detalles / Descripción</label>
+              <textarea id="hs-desc" class="form-control" rows="2" placeholder="Describe materiales, marcas o vistas..."></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Icono de FontAwesome</label>
+              <select id="hs-icon" class="form-select">
+                <option value="arrow-up">Flecha Arriba (arrow-up)</option>
+                <option value="arrow-down">Flecha Abajo (arrow-down)</option>
+                <option value="arrow-left">Flecha Izquierda (arrow-left)</option>
+                <option value="arrow-right">Flecha Derecha (arrow-right)</option>
+                <option value="info">Icono Info (info)</option>
+                <option value="eye">Ojo / Vista (eye)</option>
+                <option value="circle">Punto Simple (circle)</option>
+              </select>
+            </div>
+            <div class="col-12 mt-3 d-flex gap-2">
+              <button class="btn btn-sm btn-gold flex-grow-1" onclick="saveHotspot()">
+                <i class="fa-solid fa-circle-check"></i> Guardar Punto
+              </button>
+              <button class="btn btn-sm btn-outline-danger" onclick="cancelHotspot()">
+                Cancelar
+              </button>
+            </div>
+          </div>
+          
+          <div id="hotspots-list-container" class="mt-3">
+            <!-- Lista de Hotspots de la escena activa -->
+          </div>
+        </div>
+
+        <!-- Sección 4: Módulo de Exportación Avanzada -->
+        <div class="card-section border border-warning" style="background-color: rgba(212, 175, 55, 0.02);">
+          <div class="section-title text-warning">
+            <i class="fa-solid fa-cloud-arrow-down"></i> Exportación Avanzada e Integración
+          </div>
+          <p class="small text-secondary mb-3">Compila y descarga tu recorrido 100% libre de marcas y listo para compartir o incrustar.</p>
+          
+          <div class="d-grid gap-2">
+            <button class="btn btn-gold" onclick="exportStandAloneHTML()">
+              <i class="fa-solid fa-file-code me-2"></i>Descargar Archivo Web (.html)
+            </button>
+            <button class="btn btn-outline-custom text-warning" onclick="generateEmbedCode()">
+              <i class="fa-solid fa-code me-2"></i>Generar Código Iframe / Embed
+            </button>
+          </div>
+
+          <!-- Embed Code Display -->
+          <div id="embed-code-box" class="mt-3" style="display: none;">
+            <label class="form-label text-warning d-flex justify-content-between">
+              <span>Código HTML para Wordpress / Wix:</span>
+              <a href="#" class="text-decoration-none text-info" onclick="copyEmbedCode(event)">Copiar código</a>
+            </label>
+            <textarea id="embed-textarea" class="form-control bg-dark border-secondary text-warning" style="font-family: monospace; font-size: 0.75rem;" rows="3" readonly></textarea>
+          </div>
+        </div>
+
+        <!-- Sección 5: Video Marketing e Paneo -->
+        <div class="card-section">
+          <div class="section-title">
+            <i class="fa-solid fa-video"></i> Generador de Vídeo Inmobiliario
+          </div>
+          <p class="small text-secondary mb-3">Simula un vuelo de drone de interiores para tus grabaciones de redes sociales.</p>
+          
+          <div class="row g-2 mb-3">
+            <div class="col-7">
+              <button class="btn btn-sm btn-blue w-100 py-2" id="btn-auto-rotate" onclick="toggleAutoRotate()">
+                <i class="fa-solid fa-play me-1"></i> Paneo Cinemático
+              </button>
+            </div>
+            <div class="col-5">
+              <select id="rotate-speed" class="form-select" onchange="changeAutoRotateSpeed()">
+                <option value="0.05">Lento</option>
+                <option value="0.1" selected>Medio</option>
+                <option value="0.2">Rápido</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center justify-content-between p-2 rounded bg-dark border border-secondary mb-3">
+            <span class="small text-secondary fw-medium">Relación de Aspecto del Lienzo:</span>
+            <div class="btn-group btn-group-sm" role="group">
+              <button type="button" class="btn btn-outline-warning active" id="btn-aspect-16-9" onclick="setAspect('16-9')">
+                Horizontal (16:9)
+              </button>
+              <button type="button" class="btn btn-outline-warning" id="btn-aspect-9-16" onclick="setAspect('9-16')">
+                Vertical (9:16)
+              </button>
+            </div>
+          </div>
+
+          <button class="btn btn-sm btn-outline-custom w-100" data-bs-toggle="collapse" data-bs-target="#record-instructions">
+            <i class="fa-solid fa-circle-question"></i> Guía de Grabación
+          </button>
+          
+          <div class="collapse mt-2" id="record-instructions">
+            <div class="p-3 rounded bg-dark border border-secondary" style="font-size: 0.8rem; line-height: 1.4;">
+              <ol class="ps-3 mb-0">
+                <li>Selecciona el formato deseado (Vertical para Reels/TikTok, Horizontal para Youtube).</li>
+                <li>Activa el <strong>Paneo Cinemático</strong>.</li>
+                <li>Usa un grabador de pantalla (<strong>OBS Studio</strong> en PC o la función nativa de tu iPhone/Android).</li>
+                <li>Captura el lienzo en alta definición sin mover el ratón para una fluidez de 60fps.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- PANEL DERECHO: VISOR INMERSIVO EN TIEMPO REAL -->
+    <!-- ========================================== -->
+    <div class="panel-viewer">
+      
+      <!-- Barra superior de estado -->
+      <div class="viewer-header">
+        <span class="small fw-semibold text-secondary d-flex align-items-center gap-2">
+          <span class="d-inline-block rounded-circle bg-success" style="width: 8px; height: 8px; animation: pulse 1.5s infinite;"></span>
+          Visualizador Activo: <strong id="active-scene-name-badge">Ninguna</strong>
+        </span>
+        <div class="coordinates-badge" id="coords-display">
+          PITCH: 0.00° | YAW: 0.00°
+        </div>
+      </div>
+
+      <!-- Notificación interactiva de clic -->
+      <div class="click-helper-toast" id="toast-captured">
+        Coordenadas capturadas. ¡Completa el formulario a la izquierda!
+      </div>
+
+      <!-- Contenedor del visor -->
+      <div class="viewer-container-wrapper">
+        <div class="viewer-container" id="viewer-container-box">
+          <div id="pannellum-viewer"></div>
+        </div>
+      </div>
+
+      <!-- Ficha Comercial de Venta (Visualización de Compra) -->
+      <div class="commercial-sheet-wrapper">
+        <div class="row">
+          <div class="col-md-8">
+            <h2 class="property-title-lux" id="sheet-title">Título de la Propiedad</h2>
+            <p class="text-secondary small mb-2" id="sheet-location"><i class="fa-solid fa-map-marker-alt"></i> Ubicación de la propiedad</p>
+          </div>
+          <div class="col-md-4 text-md-end">
+            <div class="property-price-lux" id="sheet-price">$0</div>
+            <span class="badge bg-warning text-dark fw-bold">EN VENTA</span>
+          </div>
+        </div>
+        
+        <div class="d-flex flex-wrap gap-2 my-3">
+          <div class="feature-badge" id="badge-area">
+            <i class="fa-solid fa-ruler-combined"></i> <span>0 m²</span>
+          </div>
+          <div class="feature-badge" id="badge-rooms">
+            <i class="fa-solid fa-bed"></i> <span>0 Habitaciones</span>
+          </div>
+          <div class="feature-badge" id="badge-baths">
+            <i class="fa-solid fa-bath"></i> <span>0 Baños</span>
+          </div>
+          <div class="feature-badge" id="badge-parking">
+            <i class="fa-solid fa-car"></i> <span>0 Estacionamientos</span>
+          </div>
+        </div>
+
+        <p class="small text-secondary mb-0" style="white-space: pre-line; line-height: 1.5;" id="sheet-desc">
+          Aquí aparecerá la descripción comercial optimizada para la propiedad una vez que rellenes la ficha en el panel izquierdo.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Modal para Añadir Nueva Escena -->
+  <div class="modal fade" id="addSceneModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
+      <div class="modal-content bg-secondary text-light border border-secondary shadow-lg">
+        <div class="modal-header border-bottom border-secondary">
+          <h5 class="modal-title text-warning fw-bold"><i class="fa-solid fa-camera-retro"></i> Nueva Escena 360°</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">ID de la Escena (Alfanumérico, sin espacios)</label>
+            <input type="text" id="modal-scene-id" class="form-control" placeholder="Ej. fachada_principal">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Nombre Comercial de la Habitación</label>
+            <input type="text" id="modal-scene-name" class="form-control" placeholder="Ej. Fachada Principal">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Imagen Panorámica (Formato Equirrectangular)</label>
+            <div class="drag-drop-box" id="modal-drag-box" onclick="document.getElementById('modal-file-input').click()">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+              <p class="small mb-1 fw-bold">Arrastra tu foto 360 aquí</p>
+              <p class="text-muted" style="font-size: 0.75rem;">Formatos soportados: JPG, WEBP, PNG</p>
+              <input type="file" id="modal-file-input" style="display: none;" accept="image/*" onchange="handleFileSelect(event)">
+            </div>
+            <p class="text-success small mt-1" id="file-loaded-msg" style="display: none;">
+              <i class="fa-solid fa-circle-check"></i> Imagen cargada con éxito en memoria
+            </p>
+          </div>
+          <div class="row g-2">
+            <div class="col-4">
+              <label class="form-label">Yaw Inicial</label>
+              <input type="number" id="modal-scene-yaw" class="form-control" value="0">
+            </div>
+            <div class="col-4">
+              <label class="form-label">Pitch Inicial</label>
+              <input type="number" id="modal-scene-pitch" class="form-control" value="0">
+            </div>
+            <div class="col-4">
+              <label class="form-label">Hfov Inicial</label>
+              <input type="number" id="modal-scene-hfov" class="form-control" value="75">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-top border-secondary">
+          <button type="button" class="btn btn-sm btn-outline-custom text-light" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-sm btn-gold" onclick="submitNewScene()">Aceptar y Crear</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <!-- Bootstrap JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Pannellum JS -->
+  <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+
+  <script>
+    // Clase Helper para manejar la Base de Datos IndexedDB local del navegador (100% gratuita y sin límites de servidor)
+    class InmoDB {
+      constructor() {
+        this.dbName = 'InmoComposerDB';
+        this.dbVersion = 1;
+        this.db = null;
+      }
+
+      init() {
+        return new Promise((resolve, reject) => {
+          const request = indexedDB.open(this.dbName, this.dbVersion);
+          request.onerror = (e) => reject('Error al abrir la base de datos: ' + e);
+          request.onsuccess = (e) => {
+            this.db = e.target.result;
+            resolve(this.db);
+          };
+          request.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains('projects')) {
+              db.createObjectStore('projects', { keyPath: 'id' });
+            }
+          };
+        });
+      }
+
+      saveProject(project) {
+        return new Promise((resolve, reject) => {
+          if (!this.db) return reject('Base de datos no inicializada');
+          const transaction = this.db.transaction(['projects'], 'readwrite');
+          const store = transaction.objectStore('projects');
+          const request = store.put(project);
+          request.onsuccess = () => resolve(true);
+          request.onerror = (e) => reject('Error al guardar: ' + e);
+        });
+      }
+
+      getProjects() {
+        return new Promise((resolve, reject) => {
+          if (!this.db) return resolve([]);
+          const transaction = this.db.transaction(['projects'], 'readonly');
+          const store = transaction.objectStore('projects');
+          const request = store.getAll();
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = (e) => reject('Error al leer: ' + e);
+        });
+      }
+
+      getProject(id) {
+        return new Promise((resolve, reject) => {
+          if (!this.db) return reject('Base de datos no inicializada');
+          const transaction = this.db.transaction(['projects'], 'readonly');
+          const store = transaction.objectStore('projects');
+          const request = store.get(id);
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = (e) => reject('Error al leer: ' + e);
+        });
+      }
+
+      deleteProject(id) {
+        return new Promise((resolve, reject) => {
+          if (!this.db) return reject('Base de datos no inicializada');
+          const transaction = this.db.transaction(['projects'], 'readwrite');
+          const store = transaction.objectStore('projects');
+          const request = store.delete(id);
+          request.onsuccess = () => resolve(true);
+          request.onerror = (e) => reject('Error al eliminar: ' + e);
+        });
+      }
+    }
+
+    const db = new InmoDB();
+
+    // Variables de Estado Global de la Aplicación
+    let appState = {
+      projectId: 'project_' + Date.now(),
+      property: {
+        title: '',
+        price: '',
+        currency: 'USD',
+        location: '',
+        area: '',
+        rooms: '',
+        baths: '',
+        parking: '',
+        description: ''
+      },
+      scenes: [], // Colección de objetos de escena { id, name, panoramaBase64, initialView: { yaw, pitch, fov }, hotspots: [] }
+      initialSceneId: '',
+      activeSceneId: ''
+    };
+
+    let pViewer = null; // Instancia del visor de Pannellum
+    let tempImageBase64 = ''; // Almacenamiento temporal de imagen Base64 para escenas nuevas
+    let autoRotateInterval = null; // Intervalo para la rotación del drone
+    let isAutoRotating = false;
+
+    // Inicialización del DOM
+    document.addEventListener('DOMContentLoaded', () => {
+      setupDragAndDrop();
+      updateCommercialSheet();
+
+      // Inicializar base de datos IndexedDB y cargar proyectos
+      db.init()
+        .then(() => {
+          updateProjectsDropdown();
+          // Cargar borrador por defecto si existe, o crear uno nuevo
+          loadDefaultOrCreateNew();
+        })
+        .catch(err => {
+          console.error('Error al inicializar la base de datos local:', err);
+        });
+      
+      // Escuchar eventos del ratón del visor de Pannellum para barra de estado
+      document.getElementById('pannellum-viewer').addEventListener('mousemove', (e) => {
+        if (pViewer) {
+          try {
+            const coords = pViewer.mouseEventToCoords(e);
+            if (coords && coords.length === 2) {
+              const pitch = coords[0].toFixed(2);
+              const yaw = coords[1].toFixed(2);
+              document.getElementById('coords-display').innerText = `PITCH: ${pitch}° | YAW: ${yaw}°`;
+            }
+          } catch (err) {
+            // Manejar errores si Pannellum aún no está listo
+          }
+        }
+      });
+
+      // Captura de coordenadas al hacer clic
+      document.getElementById('pannellum-viewer').addEventListener('click', (e) => {
+        if (pViewer && appState.activeSceneId) {
+          try {
+            const coords = pViewer.mouseEventToCoords(e);
+            if (coords && coords.length === 2) {
+              const pitch = parseFloat(coords[0].toFixed(2));
+              const yaw = parseFloat(coords[1].toFixed(2));
+              
+              // Abrir formulario de Hotspots
+              openHotspotForm(pitch, yaw);
+            }
+          } catch (err) {
+            console.error('Error al capturar coordenadas:', err);
+          }
+        }
+      });
+    });
+    // --- GESTIÓN DE PROYECTOS (INDEXEDDB) ---
+
+    // Actualiza la lista desplegable de proyectos guardados
+    function updateProjectsDropdown() {
+      db.getProjects().then(projects => {
+        const selector = document.getElementById('project-selector');
+        selector.innerHTML = '';
+        
+        // Opción por defecto
+        const defaultOpt = document.createElement('option');
+        defaultOpt.value = '';
+        defaultOpt.innerText = '-- Cambiar Borrador --';
+        selector.appendChild(defaultOpt);
+        
+        projects.sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
+        
+        projects.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.id;
+          // Mostrar título de la propiedad o el nombre por defecto
+          const name = p.name || 'Propiedad sin título';
+          const date = new Date(p.lastModified).toLocaleDateString();
+          opt.innerText = `${name} (${date})`;
+          if (p.id === appState.projectId) {
+            opt.selected = true;
+          }
+          selector.appendChild(opt);
+        });
+
+        // Asegurar que el selector refleje el valor activo actual
+        selector.value = appState.projectId;
+      });
+    }
+
+    // Auto-guardado en IndexedDB
+    let autoSaveTimeout = null;
+    function triggerAutoSave() {
+      // Evitar guardar si la base de datos no está lista aún (evita errores en la carga inicial)
+      if (!db.db) return;
+
+      // Debounce para evitar sobrecargar el guardado continuo de teclas
+      if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
+      
+      const badge = document.getElementById('autosave-badge');
+      if (badge) {
+        badge.className = 'badge bg-dark border border-secondary text-warning me-1 d-flex align-items-center gap-1';
+        badge.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+      }
+
+      autoSaveTimeout = setTimeout(() => {
+        const project = {
+          id: appState.projectId,
+          name: appState.property.title || 'Inmueble sin título',
+          lastModified: new Date().toISOString(),
+          state: {
+            projectId: appState.projectId,
+            property: appState.property,
+            scenes: appState.scenes,
+            initialSceneId: appState.initialSceneId,
+            activeSceneId: appState.activeSceneId
+          }
+        };
+
+        db.saveProject(project)
+          .then(() => {
+            if (badge) {
+              badge.className = 'badge bg-dark border border-secondary text-success me-1 d-flex align-items-center gap-1';
+              badge.innerHTML = '<i class="fa-solid fa-circle" style="font-size: 0.45rem;"></i> Auto-Guardado';
+            }
+            updateProjectsDropdown();
+          })
+          .catch(err => {
+            console.error('Error en auto-guardado:', err);
+            if (badge) {
+              badge.className = 'badge bg-dark border border-secondary text-danger me-1 d-flex align-items-center gap-1';
+              badge.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Error';
+            }
+          });
+      }, 800);
+    }
+
+    // Carga inicial o creación de proyecto por defecto
+    function loadDefaultOrCreateNew() {
+      db.getProjects().then(projects => {
+        if (projects.length > 0) {
+          // Cargar el último modificado
+          projects.sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
+          loadProjectData(projects[0].state);
+        } else {
+          // Crear un ID inicial por defecto
+          appState.projectId = 'project_' + Date.now();
+          triggerAutoSave();
+        }
+      });
+    }
+
+    // Crear un nuevo proyecto limpio
+    function createNewProjectBtn() {
+      const name = prompt('Introduce un nombre descriptivo para este nuevo borrador:', 'Nuevo Inmueble');
+      if (name === null) return; // Cancelado
+
+      // Guardar el proyecto actual antes de limpiar
+      triggerAutoSave();
+
+      // Resetear estado
+      appState = {
+        projectId: 'project_' + Date.now(),
+        property: {
+          title: name,
+          price: '',
+          currency: 'USD',
+          location: '',
+          area: '',
+          rooms: '',
+          baths: '',
+          parking: '',
+          description: ''
+        },
+        scenes: [],
+        initialSceneId: '',
+        activeSceneId: ''
+      };
+
+      // Limpiar UI
+      fillFormFieldsFromState();
+      updateCommercialSheet();
+      renderScenesList();
+      renderHotspotsList();
+      
+      if (pViewer) {
+        pViewer.destroy();
+        pViewer = null;
+      }
+      document.getElementById('pannellum-viewer').innerHTML = '';
+      document.getElementById('active-scene-name-badge').innerText = 'Ninguna';
+      document.getElementById('hotspot-form-container').style.display = 'none';
+
+      triggerAutoSave();
+    }
+
+    // Cargar proyecto seleccionado en el selector dropdown
+    function loadSelectedProject() {
+      const id = document.getElementById('project-selector').value;
+      if (!id) return;
+      
+      showLoading(true, 'Cargando borrador del inmueble...');
+      db.getProject(id).then(project => {
+        if (project && project.state) {
+          // Guardar proyecto actual antes de cambiar
+          triggerAutoSave();
+          loadProjectData(project.state);
+        }
+        showLoading(false);
+      }).catch(err => {
+        console.error(err);
+        showLoading(false);
+      });
+    }
+
+    // Carga los datos de un proyecto al appState y refresca la interfaz
+    function loadProjectData(state) {
+      appState = state;
+      
+      // Rellenar campos del formulario
+      fillFormFieldsFromState();
+      updateCommercialSheet();
+      renderScenesList();
+      renderHotspotsList();
+
+      // Cargar escena activa en el visor si existe
+      if (appState.activeSceneId) {
+        selectScene(appState.activeSceneId);
+      } else if (appState.initialSceneId) {
+        selectScene(appState.initialSceneId);
+      } else {
+        if (pViewer) {
+          pViewer.destroy();
+          pViewer = null;
+        }
+        document.getElementById('pannellum-viewer').innerHTML = '';
+        document.getElementById('active-scene-name-badge').innerText = 'Ninguna';
+      }
+      
+      updateProjectsDropdown();
+    }
+
+    // Rellenar campos del formulario desde appState
+    function fillFormFieldsFromState() {
+      document.getElementById('prop-title').value = appState.property.title || '';
+      document.getElementById('prop-price').value = appState.property.price || '';
+      document.getElementById('prop-currency').value = appState.property.currency || 'USD';
+      document.getElementById('prop-location').value = appState.property.location || '';
+      document.getElementById('prop-area').value = appState.property.area || '';
+      document.getElementById('prop-rooms').value = appState.property.rooms || '';
+      document.getElementById('prop-baths').value = appState.property.baths || '';
+      document.getElementById('prop-parking').value = appState.property.parking || '';
+      document.getElementById('prop-description').value = appState.property.description || '';
+    }
+
+    // Eliminar el proyecto activo actual
+    function deleteCurrentProjectBtn() {
+      if (appState.projectId) {
+        if (confirm(`¿Estás seguro de eliminar el borrador de "${appState.property.title || 'Inmueble sin título'}"? Esta acción no se puede deshacer.`)) {
+          showLoading(true, 'Eliminando borrador...');
+          db.deleteProject(appState.projectId).then(() => {
+            // Limpiar appState y resetear
+            appState = {
+              projectId: 'project_' + Date.now(),
+              property: { title: '', price: '', currency: 'USD', location: '', area: '', rooms: '', baths: '', parking: '', description: '' },
+              scenes: [],
+              initialSceneId: '',
+              activeSceneId: ''
+            };
+            
+            fillFormFieldsFromState();
+            updateCommercialSheet();
+            renderScenesList();
+            renderHotspotsList();
+
+            if (pViewer) {
+              pViewer.destroy();
+              pViewer = null;
+            }
+            document.getElementById('pannellum-viewer').innerHTML = '';
+            document.getElementById('active-scene-name-badge').innerText = 'Ninguna';
+            document.getElementById('hotspot-form-container').style.display = 'none';
+
+            updateProjectsDropdown();
+            showLoading(false);
+            alert('Borrador eliminado correctamente.');
+          }).catch(err => {
+            console.error(err);
+            showLoading(false);
+          });
+        }
+      }
+    }
+
+    // Resetear Estado de la Aplicación
+    function resetApp() {
+      if (confirm('¿Estás seguro de que deseas limpiar todo el progreso actual?')) {
+        appState = {
+          property: { title: '', price: '', currency: 'USD', location: '', area: '', rooms: '', baths: '', parking: '', description: '' },
+          scenes: [],
+          initialSceneId: '',
+          activeSceneId: ''
+        };
+        
+        // Reset Inputs
+        document.getElementById('prop-title').value = '';
+        document.getElementById('prop-price').value = '';
+        document.getElementById('prop-currency').value = 'USD';
+        document.getElementById('prop-location').value = '';
+        document.getElementById('prop-area').value = '';
+        document.getElementById('prop-rooms').value = '';
+        document.getElementById('prop-baths').value = '';
+        document.getElementById('prop-parking').value = '';
+        document.getElementById('prop-description').value = '';
+
+        // Reset UI
+        updateCommercialSheet();
+        renderScenesList();
+        renderHotspotsList();
+        
+        if (pViewer) {
+          pViewer.destroy();
+          pViewer = null;
+        }
+        document.getElementById('pannellum-viewer').innerHTML = '';
+        document.getElementById('active-scene-name-badge').innerText = 'Ninguna';
+        document.getElementById('hotspot-form-container').style.display = 'none';
+        document.getElementById('embed-code-box').style.display = 'none';
+      }
+    }
+
+    // Actualiza la Ficha Comercial del Inmueble (Panel Derecho Abajo)
+    function updateCommercialSheet() {
+      // Capturar inputs
+      appState.property.title = document.getElementById('prop-title').value || 'Título de la Propiedad';
+      appState.property.price = document.getElementById('prop-price').value || '';
+      appState.property.currency = document.getElementById('prop-currency').value;
+      appState.property.location = document.getElementById('prop-location').value || 'Ubicación de la propiedad';
+      appState.property.area = document.getElementById('prop-area').value || '0';
+      appState.property.rooms = document.getElementById('prop-rooms').value || '0';
+      appState.property.baths = document.getElementById('prop-baths').value || '0';
+      appState.property.parking = document.getElementById('prop-parking').value || '0';
+      appState.property.description = document.getElementById('prop-description').value || 'Aquí aparecerá la descripción comercial...';
+
+      // Actualizar UI
+      document.getElementById('sheet-title').innerText = appState.property.title;
+      document.getElementById('sheet-location').innerHTML = `<i class="fa-solid fa-map-marker-alt text-warning"></i> ${appState.property.location}`;
+      
+      // Formato de Moneda
+      if (appState.property.price) {
+        let symbol = appState.property.currency === 'EUR' ? '€' : '$';
+        document.getElementById('sheet-price').innerText = `${symbol}${parseFloat(appState.property.price).toLocaleString()}`;
+      } else {
+        document.getElementById('sheet-price').innerText = '$0';
+      }
+
+      document.getElementById('badge-area').querySelector('span').innerText = `${appState.property.area} m²`;
+      document.getElementById('badge-rooms').querySelector('span').innerText = `${appState.property.rooms} Hab.`;
+      document.getElementById('badge-baths').querySelector('span').innerText = `${appState.property.baths} Baños`;
+      document.getElementById('badge-parking').querySelector('span').innerText = `${appState.property.parking} Estac.`;
+      document.getElementById('sheet-desc').innerText = appState.property.description;
+      
+      // Actualizar nombre y ID en la tarjeta de proyectos activos
+      const activeProjectName = document.getElementById('prop-title').value.trim() || 'Sin título';
+      const displayName = document.getElementById('active-project-name-display');
+      const displayId = document.getElementById('project-id-display');
+      if (displayName) displayName.innerText = activeProjectName;
+      if (displayId) displayId.innerText = `ID: ${appState.projectId.replace('project_', '')}`;
+      
+      triggerAutoSave();
+    }
+
+    // drag and drop setup para el Modal de Añadir Escenas
+    function setupDragAndDrop() {
+      const dropZone = document.getElementById('modal-drag-box');
+      
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          dropZone.classList.add('dragover');
+        }, false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          dropZone.classList.remove('dragover');
+        }, false);
+      });
+
+      dropZone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (files.length > 0) {
+          processImageFile(files[0]);
+        }
+      }, false);
+    }
+
+    // Manejar archivos desde el explorador normal
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (file) {
+        processImageFile(file);
+      }
+    }
+
+    // Convertir imagen a Base64 para almacenamiento en el estado
+    function processImageFile(file) {
+      if (!file.type.startsWith('image/')) {
+        alert('Por favor, selecciona un archivo de imagen válido.');
+        return;
+      }
+
+      showLoading(true, 'Procesando y optimizando imagen panorámica...');
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        tempImageBase64 = e.target.result;
+        document.getElementById('file-loaded-msg').style.display = 'block';
+        showLoading(false);
+      };
+      reader.onerror = function() {
+        alert('Error al leer la imagen.');
+        showLoading(false);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Mostrar modal para añadir escena
+    function addNewSceneModal() {
+      // Limpiar campos
+      document.getElementById('modal-scene-id').value = '';
+      document.getElementById('modal-scene-name').value = '';
+      document.getElementById('file-loaded-msg').style.display = 'none';
+      document.getElementById('modal-scene-yaw').value = '0';
+      document.getElementById('modal-scene-pitch').value = '0';
+      document.getElementById('modal-scene-hfov').value = '75';
+      tempImageBase64 = '';
+      
+      const modal = new bootstrap.Modal(document.getElementById('addSceneModal'));
+      modal.show();
+    }
+
+    // Submit de Nueva Escena
+    function submitNewScene() {
+      let id = document.getElementById('modal-scene-id').value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+      let name = document.getElementById('modal-scene-name').value.trim();
+      let yaw = parseFloat(document.getElementById('modal-scene-yaw').value) || 0;
+      let pitch = parseFloat(document.getElementById('modal-scene-pitch').value) || 0;
+      let hfov = parseFloat(document.getElementById('modal-scene-hfov').value) || 75;
+
+      if (!id) {
+        alert('El ID de escena es obligatorio y debe ser alfanumérico.');
+        return;
+      }
+
+      // Validar ID único
+      if (appState.scenes.find(s => s.id === id)) {
+        alert('Ya existe una escena con este ID. Por favor, utiliza otro.');
+        return;
+      }
+
+      if (!name) {
+        alert('El nombre comercial de la escena es obligatorio.');
+        return;
+      }
+
+      if (!tempImageBase64) {
+        alert('Debes arrastrar o seleccionar una imagen panorámica 360°.');
+        return;
+      }
+
+      // Crear Objeto de Escena
+      const newScene = {
+        id: id,
+        name: name,
+        panoramaBase64: tempImageBase64,
+        initialView: {
+          yaw: yaw,
+          pitch: pitch,
+          fov: hfov
+        },
+        hotspots: []
+      };
+
+      appState.scenes.push(newScene);
+
+      // Si es la primera escena, establecer como predeterminada
+      if (appState.scenes.length === 1) {
+        appState.initialSceneId = id;
+      }
+
+      // Cerrar modal
+      const modalEl = document.getElementById('addSceneModal');
+      const modal = bootstrap.Modal.getInstance(modalEl);
+      modal.hide();
+
+      // Renderizar listas y cargar en visor
+      renderScenesList();
+      selectScene(id);
+      triggerAutoSave();
+    }
+
+    // Renderizar Lista de Escenas en el Panel Izquierdo
+    function renderScenesList() {
+      const container = document.getElementById('scenes-list-container');
+      container.innerHTML = '';
+
+      if (appState.scenes.length === 0) {
+        container.innerHTML = '<p class="small text-muted text-center py-2" id="no-scenes-msg">No has añadido escenas aún. Haz clic en "Añadir".</p>';
+        return;
+      }
+
+      appState.scenes.forEach(scene => {
+        const isStart = scene.id === appState.initialSceneId;
+        const isActive = scene.id === appState.activeSceneId;
+        
+        const sceneEl = document.createElement('div');
+        sceneEl.className = `list-item-custom ${isActive ? 'active-scene' : ''}`;
+        
+        sceneEl.innerHTML = `
+          <div class="d-flex align-items-center gap-2" style="cursor: pointer;" onclick="selectScene('${scene.id}')">
+            <i class="fa-solid fa-image text-warning"></i>
+            <div>
+              <div class="fw-semibold text-light" style="font-size: 0.85rem;">${scene.name}</div>
+              <div class="text-muted" style="font-size: 0.7rem;">ID: ${scene.id}</div>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-1">
+            <button class="btn btn-sm p-1 ${isStart ? 'text-warning' : 'text-muted'}" title="Escena Inicial de Entrada" onclick="setInitialScene('${scene.id}')">
+              <i class="fa-solid fa-house-circle-check"></i>
+            </button>
+            <button class="btn btn-sm p-1 text-danger" title="Eliminar Escena" onclick="deleteScene('${scene.id}')">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+        `;
+        container.appendChild(sceneEl);
+      });
+
+      // Actualizar select de hotspots de navegación
+      updateTargetScenesDropdown();
+    }
+
+    // Seleccionar Escena y Renderizar Visor
+    function selectScene(sceneId) {
+      appState.activeSceneId = sceneId;
+      renderScenesList();
+      renderHotspotsList();
+
+      const scene = appState.scenes.find(s => s.id === sceneId);
+      if (!scene) return;
+
+      document.getElementById('active-scene-name-badge').innerText = scene.name;
+
+      // Destruir visor anterior si existe
+      if (pViewer) {
+        try {
+          pViewer.destroy();
+        } catch (e) {
+          // Ignorar errores de destrucción
+        }
+      }
+
+      // Preparar configuración de Pannellum
+      const config = {
+        type: 'equirectangular',
+        panorama: scene.panoramaBase64,
+        yaw: scene.initialView.yaw,
+        pitch: scene.initialView.pitch,
+        hfov: scene.initialView.fov,
+        autoLoad: true,
+        showZoomCtrl: true,
+        showFullscreenCtrl: false,
+        mouseZoom: true,
+        hotSpots: []
+      };
+
+      // Mapear hotspots del estado a configuración de Pannellum
+      scene.hotspots.forEach(hs => {
+        let pHS = {
+          pitch: hs.pitch,
+          yaw: hs.yaw,
+          cssClass: `custom-hotspot-${hs.style.icon || 'info'} hotspot-pulsing`,
+          createTooltipFunc: (hotSpotDiv) => {
+            hotSpotDiv.classList.add('custom-tooltip');
+            
+            // Estilo visual del Hotspot
+            const icon = document.createElement('i');
+            icon.className = `fa-solid fa-${hs.style.icon || 'info'}`;
+            icon.style.color = hs.style.color || '#d4af37';
+            icon.style.fontSize = '18px';
+            icon.style.background = 'rgba(10,12,16,0.9)';
+            icon.style.padding = '8px';
+            icon.style.borderRadius = '50%';
+            icon.style.border = `1px solid ${hs.style.color || '#d4af37'}`;
+            icon.style.cursor = 'pointer';
+            
+            hotSpotDiv.appendChild(icon);
+
+            // Crear Tooltip Popup
+            const tooltipSpan = document.createElement('span');
+            tooltipSpan.innerText = hs.title;
+            tooltipSpan.style.visibility = 'hidden';
+            tooltipSpan.style.position = 'absolute';
+            tooltipSpan.style.bottom = '100%';
+            tooltipSpan.style.left = '50%';
+            tooltipSpan.style.transform = 'translateX(-50%)';
+            tooltipSpan.style.backgroundColor = 'rgba(10,12,16,0.95)';
+            tooltipSpan.style.color = '#fff';
+            tooltipSpan.style.padding = '4px 8px';
+            tooltipSpan.style.borderRadius = '4px';
+            tooltipSpan.style.fontSize = '11px';
+            tooltipSpan.style.whiteSpace = 'nowrap';
+            tooltipSpan.style.marginBottom = '5px';
+            tooltipSpan.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+            
+            hotSpotDiv.appendChild(tooltipSpan);
+
+            hotSpotDiv.addEventListener('mouseover', () => {
+              tooltipSpan.style.visibility = 'visible';
+            });
+            hotSpotDiv.addEventListener('mouseout', () => {
+              tooltipSpan.style.visibility = 'hidden';
+            });
+          }
+        };
+
+        // Comportamientos
+        if (hs.type === 'navigation') {
+          pHS.clickHandlerFunc = () => {
+            selectScene(hs.targetSceneId);
+          };
+        } else if (hs.type === 'info') {
+          pHS.clickHandlerFunc = () => {
+            alert(`ℹ️ ${hs.title}\n\n${hs.description || ''}`);
+          };
+        }
+
+        config.hotSpots.push(pHS);
+      });
+
+      // Crear instancia de Pannellum
+      try {
+        pViewer = pannellum.viewer('pannellum-viewer', config);
+      } catch (err) {
+        console.error('Error al inicializar Pannellum:', err);
+      }
+    }
+
+    // Eliminar Escena
+    function deleteScene(sceneId) {
+      if (confirm(`¿Estás seguro de eliminar la escena "${sceneId}"? Se borrarán también los hotspots asociados.`)) {
+        appState.scenes = appState.scenes.filter(s => s.id !== sceneId);
+        
+        // Limpiar referencias de hotspots de navegación que apunten a esta escena
+        appState.scenes.forEach(s => {
+          s.hotspots = s.hotspots.filter(hs => hs.targetSceneId !== sceneId);
+        });
+
+        // Actualizar escena inicial si fue borrada
+        if (appState.initialSceneId === sceneId) {
+          appState.initialSceneId = appState.scenes.length > 0 ? appState.scenes[0].id : '';
+        }
+
+        // Cargar otra escena activa si la actual fue borrada
+        if (appState.activeSceneId === sceneId) {
+          if (appState.scenes.length > 0) {
+            selectScene(appState.scenes[0].id);
+          } else {
+            appState.activeSceneId = '';
+            if (pViewer) {
+              pViewer.destroy();
+              pViewer = null;
+            }
+            document.getElementById('pannellum-viewer').innerHTML = '';
+            document.getElementById('active-scene-name-badge').innerText = 'Ninguna';
+          }
+        }
+
+        renderScenesList();
+        renderHotspotsList();
+        triggerAutoSave();
+      }
+    }
+
+    // Definir Escena Inicial
+    function setInitialScene(sceneId) {
+      appState.initialSceneId = sceneId;
+      renderScenesList();
+      triggerAutoSave();
+      alert(`La escena inicial de entrada para el cliente se ha configurado a: "${sceneId}"`);
+    }
+
+    // Actualizar Dropdown de Escenas Destino para Hotspots
+    function updateTargetScenesDropdown() {
+      const select = document.getElementById('hs-target-scene');
+      select.innerHTML = '';
+      
+      appState.scenes.forEach(s => {
+        if (s.id !== appState.activeSceneId) {
+          const opt = document.createElement('option');
+          opt.value = s.id;
+          opt.innerText = s.name;
+          select.appendChild(opt);
+        }
+      });
+    }
+
+    // Abrir Formulario de Hotspot
+    function openHotspotForm(pitch, yaw) {
+      document.getElementById('hs-pitch').value = pitch;
+      document.getElementById('hs-yaw').value = yaw;
+      document.getElementById('hotspot-form-container').style.display = 'block';
+
+      // Mostrar toast de captura
+      const toast = document.getElementById('toast-captured');
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 3000);
+
+      // Limpiar campos del hotspot
+      document.getElementById('hs-title').value = '';
+      document.getElementById('hs-desc').value = '';
+      updateTargetScenesDropdown();
+      toggleHotspotTypeFields();
+    }
+
+    // Cancelar/Ocultar Formulario de Hotspot
+    function cancelHotspot() {
+      document.getElementById('hotspot-form-container').style.display = 'none';
+    }
+
+    // Toggle fields según el tipo de hotspot
+    function toggleHotspotTypeFields() {
+      const type = document.getElementById('hs-type').value;
+      if (type === 'navigation') {
+        document.getElementById('hs-field-target').style.display = 'block';
+        document.getElementById('hs-field-text').style.display = 'none';
+        document.getElementById('hs-icon').value = 'arrow-up';
+      } else {
+        document.getElementById('hs-field-target').style.display = 'none';
+        document.getElementById('hs-field-text').style.display = 'block';
+        document.getElementById('hs-icon').value = 'info';
+      }
+    }
+
+    // Guardar Hotspot en el Estado y Re-renderizar Visor
+    function saveHotspot() {
+      const pitch = parseFloat(document.getElementById('hs-pitch').value);
+      const yaw = parseFloat(document.getElementById('hs-yaw').value);
+      const type = document.getElementById('hs-type').value;
+      const icon = document.getElementById('hs-icon').value;
+      
+      const activeScene = appState.scenes.find(s => s.id === appState.activeSceneId);
+      if (!activeScene) return;
+
+      const hotspot = {
+        id: `hs_${Date.now()}`,
+        type: type,
+        pitch: pitch,
+        yaw: yaw,
+        style: {
+          icon: icon,
+          color: type === 'navigation' ? '#d4af37' : '#ffffff'
+        }
+      };
+
+      if (type === 'navigation') {
+        const targetSceneId = document.getElementById('hs-target-scene').value;
+        if (!targetSceneId) {
+          alert('Debes crear al menos otra escena antes de enlazar navegación.');
+          return;
+        }
+        const targetScene = appState.scenes.find(s => s.id === targetSceneId);
+        hotspot.title = `Ir a: ${targetScene.name}`;
+        hotspot.targetSceneId = targetSceneId;
+      } else {
+        const title = document.getElementById('hs-title').value.trim();
+        const desc = document.getElementById('hs-desc').value.trim();
+        if (!title) {
+          alert('El título del punto de información es obligatorio.');
+          return;
+        }
+        hotspot.title = title;
+        hotspot.description = desc;
+      }
+
+      activeScene.hotspots.push(hotspot);
+
+      // Limpiar y Recargar
+      document.getElementById('hotspot-form-container').style.display = 'none';
+      selectScene(appState.activeSceneId);
+      renderHotspotsList();
+      triggerAutoSave();
+    }
+
+    // Renderizar Lista de Hotspots de la escena activa en el panel izquierdo
+    function renderHotspotsList() {
+      const container = document.getElementById('hotspots-list-container');
+      container.innerHTML = '';
+
+      const activeScene = appState.scenes.find(s => s.id === appState.activeSceneId);
+      if (!activeScene || !activeScene.hotspots || activeScene.hotspots.length === 0) {
+        return;
+      }
+
+      const titleEl = document.createElement('div');
+      titleEl.className = 'small fw-bold text-secondary mb-2';
+      titleEl.innerText = 'Puntos en esta Habitación:';
+      container.appendChild(titleEl);
+
+      activeScene.hotspots.forEach(hs => {
+        const item = document.createElement('div');
+        item.className = 'd-flex justify-content-between align-items-center bg-dark p-2 rounded mb-2 border border-secondary';
+        item.style.fontSize = '0.8rem';
+        
+        let typeIcon = hs.type === 'navigation' ? 'fa-route text-warning' : 'fa-info-circle text-info';
+        
+        item.innerHTML = `
+          <div class="d-flex align-items-center gap-2">
+            <i class="fa-solid ${typeIcon}"></i>
+            <span class="text-light fw-medium">${hs.title}</span>
+          </div>
+          <button class="btn btn-sm text-danger p-0 px-1" onclick="deleteHotspot('${hs.id}')">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // Eliminar Hotspot
+    function deleteHotspot(hotspotId) {
+      const activeScene = appState.scenes.find(s => s.id === appState.activeSceneId);
+      if (!activeScene) return;
+
+      activeScene.hotspots = activeScene.hotspots.filter(hs => hs.id !== hotspotId);
+      selectScene(appState.activeSceneId);
+      renderHotspotsList();
+      triggerAutoSave();
+    }
+
+    // Mapear Relación de Aspecto (16:9 o 9:16)
+    function setAspect(aspect) {
+      const box = document.getElementById('viewer-container-box');
+      const btn16 = document.getElementById('btn-aspect-16-9');
+      const btn9 = document.getElementById('btn-aspect-9-16');
+
+      if (aspect === '9-16') {
+        box.classList.add('aspect-vertical');
+        btn9.classList.add('active');
+        btn16.classList.remove('active');
+      } else {
+        box.classList.remove('aspect-vertical');
+        btn16.classList.add('active');
+        btn9.classList.remove('active');
+      }
+
+      // Re-dimensionar visor de Pannellum
+      setTimeout(() => {
+        if (pViewer) {
+          pViewer.resize();
+        }
+      }, 500);
+    }
+
+    // Auto-rotación (Paneo Drone)
+    function toggleAutoRotate() {
+      const btn = document.getElementById('btn-auto-rotate');
+      const speed = parseFloat(document.getElementById('rotate-speed').value);
+
+      if (isAutoRotating) {
+        // Detener
+        clearInterval(autoRotateInterval);
+        isAutoRotating = false;
+        btn.innerHTML = '<i class="fa-solid fa-play me-1"></i> Paneo Cinemático';
+        btn.className = 'btn btn-sm btn-blue w-100 py-2';
+      } else {
+        if (!pViewer) {
+          alert('Primero añade y carga una escena panorámica.');
+          return;
+        }
+        // Iniciar
+        autoRotateInterval = setInterval(() => {
+          if (pViewer) {
+            let currentYaw = pViewer.getYaw();
+            pViewer.setYaw(currentYaw + speed);
+          }
+        }, 30);
+        isAutoRotating = true;
+        btn.innerHTML = '<i class="fa-solid fa-pause me-1"></i> Detener Paneo';
+        btn.className = 'btn btn-sm btn-danger w-100 py-2';
+      }
+    }
+
+    // Cambiar velocidad de rotación en vivo
+    function changeAutoRotateSpeed() {
+      if (isAutoRotating) {
+        // Re-iniciar con la nueva velocidad
+        toggleAutoRotate();
+        toggleAutoRotate();
+      }
+    }
+
+    // Mostrar loading screen
+    function showLoading(show, text = 'Cargando...') {
+      const overlay = document.getElementById('loading-spinner');
+      const textEl = document.getElementById('loading-text');
+      if (show) {
+        textEl.innerText = text;
+        overlay.style.display = 'flex';
+      } else {
+        overlay.style.display = 'none';
+      }
+    }
+
+    // ==========================================
+    // EXPORTACIÓN AVANZADA Y COMPILACIÓN HTML
+    // ==========================================
+
+    function generateEmbedCode() {
+      const textarea = document.getElementById('embed-textarea');
+      const container = document.getElementById('embed-code-box');
+      
+      const iframeText = `<iframe src="TU_ENLACE_PUBLICO_AQUI" width="100%" height="600px" frameborder="0" allowfullscreen allow="gyroscope; accelerometer"></iframe>`;
+      
+      textarea.value = iframeText;
+      container.style.display = 'block';
+    }
+
+    function copyEmbedCode(e) {
+      e.preventDefault();
+      const textarea = document.getElementById('embed-textarea');
+      textarea.select();
+      document.execCommand('copy');
+      alert('Código Iframe copiado al portapapeles. Ahora súbelo a WordPress/Wix.');
+    }
+
+    // Compilador en Caliente de la Visita Autónoma (Descarga del HTML autocontenido)
+    function exportStandAloneHTML() {
+      if (appState.scenes.length === 0) {
+        alert('Debes añadir al menos una escena antes de exportar el tour.');
+        return;
+      }
+
+      showLoading(true, 'Compilando código y codificando panoramas en Base64...');
+
+      // Generar plantilla de código HTML
+      setTimeout(() => {
+        try {
+          const outputHTML = buildTemplateHTML(appState);
+          
+          // Crear Blob y descargar
+          const blob = new Blob([outputHTML], { type: 'text/html;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${appState.property.title.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'inmueble'}-tour.html`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+          
+          showLoading(false);
+          alert('¡Tour Virtual exportado con éxito!\n\nEl archivo HTML descargado contiene toda la ficha comercial y las imágenes incrustadas. Puedes enviarlo directamente o subirlo a la web.');
+        } catch (err) {
+          console.error('Error al exportar:', err);
+          showLoading(false);
+          alert('Ocurrió un error al compilar el archivo.');
+        }
+      }, 1000);
+    }
+
+    // Función auxiliar para construir el HTML Final Independiente
+    function buildTemplateHTML(state) {
+      // Stringificar datos limpiamente para incrustar en JS
+      const embeddedData = JSON.stringify({
+        property: state.property,
+        scenes: state.scenes.map(s => ({
+          id: s.id,
+          name: s.name,
+          panoramaBase64: s.panoramaBase64,
+          initialView: s.initialView,
+          hotspots: s.hotspots
+        })),
+        initialSceneId: state.initialSceneId
+      });
+
+      return `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${state.property.title || 'Inmueble Premium - Recorrido Virtual'}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-primary: #0a0c10;
+      --bg-secondary: #10141b;
+      --bg-panel: #161c24;
+      --accent-gold: #d4af37;
+      --text-main: #f3f4f6;
+      --text-secondary: #9ca3af;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --glass-bg: rgba(22, 28, 36, 0.75);
+      --glass-border: rgba(212, 175, 55, 0.2);
+      --glass-backdrop: blur(12px);
+    }
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .main-layout {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    .viewer-area {
+      flex: 1;
+      position: relative;
+      background-color: #000;
+    }
+    #pannellum-container {
+      width: 100%;
+      height: 100%;
+    }
+    .floating-sheet-panel {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      width: 380px;
+      max-height: 85%;
+      z-index: 1000;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: var(--glass-backdrop);
+      -webkit-backdrop-filter: var(--glass-backdrop);
+      border-radius: 16px;
+      padding: 1.25rem;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+      overflow-y: auto;
+    }
+    .property-title {
+      font-family: 'Playfair Display', serif;
+      color: var(--accent-gold);
+      font-size: 1.4rem;
+      margin-bottom: 0.25rem;
+    }
+    .property-price {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .feature-badge {
+      background-color: rgba(10, 12, 16, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.35rem 0.65rem;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .feature-badge i {
+      color: var(--accent-gold);
+    }
+    .scene-navigator-panel {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: var(--glass-backdrop);
+      -webkit-backdrop-filter: var(--glass-backdrop);
+      border-radius: 12px;
+      padding: 0.5rem;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    }
+    .scene-nav-btn {
+      background-color: transparent;
+      border: 1px solid transparent;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 0.4rem 0.85rem;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+    .scene-nav-btn.active {
+      background-color: var(--accent-gold);
+      color: var(--bg-primary);
+      font-weight: 600;
+    }
+    .scene-nav-btn:hover:not(.active) {
+      border-color: var(--accent-gold);
+      color: var(--accent-gold);
+    }
+    /* Estilos de Hotspots */
+    .hotspot-pulsing {
+      animation: hotspot-pulse 2s infinite;
+    }
+    @keyframes hotspot-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+    }
+    @media (max-width: 768px) {
+      .floating-sheet-panel {
+        width: calc(100% - 40px);
+        bottom: 10px;
+        left: 20px;
+        max-height: 40%;
+      }
+      .scene-navigator-panel {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        display: flex;
+        overflow-x: auto;
+        gap: 0.25rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="main-layout">
+    
+    <div class="viewer-area">
+      <!-- Visor de Pannellum -->
+      <div id="pannellum-container"></div>
+
+      <!-- Ficha Flotante del Inmueble -->
+      <div class="floating-sheet-panel">
+        <h1 class="property-title">${state.property.title}</h1>
+        <p class="text-secondary small mb-2"><i class="fa-solid fa-map-marker-alt text-warning"></i> ${state.property.location}</p>
+        <div class="property-price mb-3" id="final-price"></div>
+        
+        <div class="d-flex flex-wrap gap-2 mb-3">
+          <div class="feature-badge"><i class="fa-solid fa-ruler-combined"></i> ${state.property.area} m²</div>
+          <div class="feature-badge"><i class="fa-solid fa-bed"></i> ${state.property.rooms} Hab.</div>
+          <div class="feature-badge"><i class="fa-solid fa-bath"></i> ${state.property.baths} Baños</div>
+          <div class="feature-badge"><i class="fa-solid fa-car"></i> ${state.property.parking} Estac.</div>
+        </div>
+
+        <hr class="border-secondary my-3">
+        <p class="small text-secondary mb-0" style="white-space: pre-line; line-height: 1.5;">${state.property.description}</p>
+      </div>
+
+      <!-- Navegación de Escenas -->
+      <div class="scene-navigator-panel d-flex gap-1" id="scene-nav-bar"></div>
+
+    </div>
+
+  </div>
+
+  <!-- Pannellum & JS Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></${'script'}>
+  <script>
+    // Recuperar datos incrustados
+    const tourData = ${embeddedData};
+    let viewer = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      formatCurrency();
+      buildNavigationMenu();
+      loadScene(tourData.initialSceneId);
+    });
+
+    function formatCurrency() {
+      const price = parseFloat(tourData.property.price);
+      if (price) {
+        let symbol = tourData.property.currency === 'EUR' ? '€' : '$';
+        document.getElementById('final-price').innerText = symbol + price.toLocaleString();
+      } else {
+        document.getElementById('final-price').innerText = 'Consultar Precio';
+      }
+    }
+
+    function buildNavigationMenu() {
+      const navbar = document.getElementById('scene-nav-bar');
+      navbar.innerHTML = '';
+      tourData.scenes.forEach(scene => {
+        const btn = document.createElement('button');
+        btn.className = 'scene-nav-btn';
+        btn.id = 'nav-btn-' + scene.id;
+        btn.innerText = scene.name;
+        btn.onclick = () => loadScene(scene.id);
+        navbar.appendChild(btn);
+      });
+    }
+
+    function loadScene(sceneId) {
+      const scene = tourData.scenes.find(s => s.id === sceneId);
+      if (!scene) return;
+
+      // Actualizar botón activo
+      document.querySelectorAll('.scene-nav-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = document.getElementById('nav-btn-' + sceneId);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      if (viewer) {
+        viewer.destroy();
+      }
+
+      // Configuración de visualización
+      const config = {
+        type: 'equirectangular',
+        panorama: scene.panoramaBase64,
+        yaw: scene.initialView.yaw,
+        pitch: scene.initialView.pitch,
+        hfov: scene.initialView.fov,
+        autoLoad: true,
+        showZoomCtrl: true,
+        showFullscreenCtrl: true,
+        mouseZoom: true,
+        hotSpots: []
+      };
+
+      // Inyectar hotspots
+      scene.hotspots.forEach(hs => {
+        let pHS = {
+          pitch: hs.pitch,
+          yaw: hs.yaw,
+          cssClass: 'custom-hotspot-' + (hs.style.icon || 'info') + ' hotspot-pulsing',
+          createTooltipFunc: (hotSpotDiv) => {
+            const icon = document.createElement('i');
+            icon.className = 'fa-solid fa-' + (hs.style.icon || 'info');
+            icon.style.color = hs.style.color || '#d4af37';
+            icon.style.fontSize = '18px';
+            icon.style.background = 'rgba(10,12,16,0.9)';
+            icon.style.padding = '8px';
+            icon.style.borderRadius = '50%';
+            icon.style.border = '1px solid ' + (hs.style.color || '#d4af37');
+            icon.style.cursor = 'pointer';
+            hotSpotDiv.appendChild(icon);
+
+            const tooltipSpan = document.createElement('span');
+            tooltipSpan.innerText = hs.title;
+            tooltipSpan.style.visibility = 'hidden';
+            tooltipSpan.style.position = 'absolute';
+            tooltipSpan.style.bottom = '100%';
+            tooltipSpan.style.left = '50%';
+            tooltipSpan.style.transform = 'translateX(-50%)';
+            tooltipSpan.style.backgroundColor = 'rgba(10,12,16,0.95)';
+            tooltipSpan.style.color = '#fff';
+            tooltipSpan.style.padding = '4px 8px';
+            tooltipSpan.style.borderRadius = '4px';
+            tooltipSpan.style.fontSize = '11px';
+            tooltipSpan.style.whiteSpace = 'nowrap';
+            tooltipSpan.style.marginBottom = '5px';
+            tooltipSpan.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+            hotSpotDiv.appendChild(tooltipSpan);
+
+            hotSpotDiv.addEventListener('mouseover', () => tooltipSpan.style.visibility = 'visible');
+            hotSpotDiv.addEventListener('mouseout', () => tooltipSpan.style.visibility = 'hidden');
+          }
+        };
+
+        if (hs.type === 'navigation') {
+          pHS.clickHandlerFunc = () => loadScene(hs.targetSceneId);
+        } else {
+          pHS.clickHandlerFunc = () => alert('ℹ️ ' + hs.title + '\\n\\n' + (hs.description || ''));
+        }
+
+        config.hotSpots.push(pHS);
+      });
+
+      viewer = pannellum.viewer('pannellum-container', config);
+    }
+  </${'script'}>
+</body>
+</html>`;
+    }
+  </script>
+</body>
+</html>
