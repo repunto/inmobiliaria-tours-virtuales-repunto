@@ -3,7 +3,7 @@
   "id": "villa-albatros-001",
   "title": "Villa Albatros",
   "description": "Una obra maestra de la arquitectura moderna con vistas incomparables al mar y acabados de lujo.",
-  "coverImage": "/assets/inmuebles/propiedad-ejemplo/media/cover.webp",
+  "coverImage": "assets/inmuebles/propiedad-ejemplo/media/cover.webp",
   "author": "Samimunay Premium Properties",
   "createdAt": "2026-07-09T12:00:00Z",
   "price": 2450000,
@@ -31,7 +31,7 @@
       "id": "recibidor",
       "name": "Recibidor de Honor",
       "type": "panorama",
-      "panoramaUrl": "/assets/inmuebles/propiedad-ejemplo/panos/recibidor.webp",
+      "panoramaUrl": "assets/inmuebles/propiedad-ejemplo/panos/recibidor.webp",
       "initialView": {
         "yaw": 0,
         "pitch": 0,
@@ -44,7 +44,7 @@
         "fovMax": 95
       },
       "audio": {
-        "url": "/assets/inmuebles/propiedad-ejemplo/audio/recibidor-ambient.mp3",
+        "url": "assets/inmuebles/propiedad-ejemplo/audio/recibidor-ambient.mp3",
         "loop": true
       },
       "hotspots": [
@@ -68,7 +68,7 @@
           "pitch": 30.5,
           "title": "Lámpara de Diseño 'Aura'",
           "description": "Obra escultórica de iluminación diseñada a medida con cristal de cuarzo y acabados en oro cepillado de 24 quilates.",
-          "mediaUrl": "/assets/inmuebles/propiedad-ejemplo/media/aura_detail.webp",
+          "mediaUrl": "assets/inmuebles/propiedad-ejemplo/media/aura_detail.webp",
           "style": {
             "icon": "info",
             "color": "#ffffff",
@@ -81,7 +81,7 @@
       "id": "salon",
       "name": "Gran Salón Familiar",
       "type": "panorama",
-      "panoramaUrl": "/assets/inmuebles/propiedad-ejemplo/panos/salon.webp",
+      "panoramaUrl": "assets/inmuebles/propiedad-ejemplo/panos/salon.webp",
       "initialView": {
         "yaw": 180,
         "pitch": -5,
@@ -94,7 +94,7 @@
         "fovMax": 105
       },
       "audio": {
-        "url": "/assets/inmuebles/propiedad-ejemplo/audio/salon-piano.mp3",
+        "url": "assets/inmuebles/propiedad-ejemplo/audio/salon-piano.mp3",
         "loop": true
       },
       "hotspots": [
@@ -131,7 +131,7 @@
           "pitch": -10.0,
           "title": "Vídeo: Chimenea Domótica Inteligente",
           "description": "Demostración del sistema de encendido automático y calefacción ecológica por bioetanol.",
-          "mediaUrl": "/assets/inmuebles/propiedad-ejemplo/media/chimenea-demo.webm",
+          "mediaUrl": "assets/inmuebles/propiedad-ejemplo/media/chimenea-demo.webm",
           "style": {
             "icon": "play",
             "color": "#ff4d4d",
@@ -144,7 +144,7 @@
       "id": "terraza",
       "name": "Terraza y Piscina Infinita",
       "type": "3d-model",
-      "modelUrl": "/assets/inmuebles/propiedad-ejemplo/models/terraza.glb",
+      "modelUrl": "assets/inmuebles/propiedad-ejemplo/models/terraza.glb",
       "initialView": {
         "yaw": -90,
         "pitch": 5,
@@ -157,7 +157,7 @@
         "fovMax": 90
       },
       "audio": {
-        "url": "/assets/inmuebles/propiedad-ejemplo/audio/sea-waves-ambient.mp3",
+        "url": "assets/inmuebles/propiedad-ejemplo/audio/sea-waves-ambient.mp3",
         "loop": true,
         "spatial": true
       },
@@ -193,7 +193,7 @@
     }
   ],
   "floorPlan": {
-    "imageUrl": "/assets/inmuebles/propiedad-ejemplo/media/floorplan.png",
+    "imageUrl": "assets/inmuebles/propiedad-ejemplo/media/floorplan.png",
     "rooms": [
       {
         "sceneId": "recibidor",

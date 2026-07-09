@@ -10,7 +10,7 @@ const App: React.FC = () => {
 
   // Carga de la especificación JSON del inmueble al arrancar
   useEffect(() => {
-    fetch('/assets/inmuebles/propiedad-ejemplo/inmo-spec.json')
+    fetch('assets/inmuebles/propiedad-ejemplo/inmo-spec.json')
       .then((res) => {
         if (!res.ok) {
           throw new Error('No se pudo cargar el archivo de especificación del inmueble.');
