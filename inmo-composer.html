@@ -460,6 +460,47 @@
       background: rgba(0, 0, 0, 0.9);
       border: 1px solid rgba(212, 175, 55, 0.4);
     }
+    /* Buscador Autocomplete de Direcciones */
+    .autocomplete-suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: rgba(22, 28, 36, 0.98);
+      border: 1px solid var(--glass-border);
+      border-radius: 6px;
+      max-height: 200px;
+      overflow-y: auto;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(12px);
+      margin-top: 4px;
+    }
+
+    .autocomplete-suggestion-item {
+      padding: 8px 12px;
+      font-size: 0.72rem;
+      color: #bbb;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease-in-out;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      text-align: left;
+    }
+
+    .autocomplete-suggestion-item:last-child {
+      border-bottom: none;
+    }
+
+    .autocomplete-suggestion-item:hover,
+    .autocomplete-suggestion-item.active-suggestion {
+      background: rgba(212, 175, 55, 0.12);
+      color: #fff;
+      padding-left: 16px;
+      border-left: 3px solid var(--accent-gold);
+    }
   </style>
 </head>
 <body>
@@ -584,9 +625,15 @@
             <div class="col-12 mt-3 pt-2 border-top border-secondary">
               <div class="small fw-bold text-warning mb-2"><i class="fa-solid fa-earth-americas"></i> Geolocalización e Integración AI</div>
               <div class="row g-2">
-                <div class="col-12">
+                <div class="col-12 position-relative">
                   <label class="form-label mb-1" style="font-size: 0.75rem;">Dirección Exacta (Nº, Lote, Calle)</label>
-                  <input type="text" id="prop-address" class="form-control form-control-sm text-light bg-secondary border-secondary" placeholder="Ej. Calle del Sol 45, Lote 12, Urbanización Albatros" oninput="updateCommercialSheet()">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-secondary border-secondary text-warning"><i class="fa-solid fa-map-pin"></i></span>
+                    <input type="text" id="prop-address" class="form-control text-light bg-secondary border-secondary" placeholder="Ej. Calle del Sol 45, Lote 12, Urbanización Albatros" autocomplete="off">
+                    <span class="input-group-text bg-secondary border-secondary text-warning" id="address-loading-spinner" style="display: none;"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
+                  </div>
+                  <!-- Sugerencias Flotantes -->
+                  <div id="address-suggestions" class="autocomplete-suggestions" style="display: none;"></div>
                 </div>
                 <div class="col-12">
                   <label class="form-label mb-1" style="font-size: 0.75rem;">Enlace Google Maps / Street View / Earth</label>
@@ -957,10 +1004,158 @@
     let autoRotateInterval = null; // Intervalo para la rotación del drone
     let isAutoRotating = false;
 
+    // --- SISTEMA DE AUTOCOMPLETADO DE DIRECCIONES (OpenStreetMap / Nominatim) ---
+    let currentSuggestions = [];
+    let activeSuggestionIndex = -1;
+
+    function debounce(func, wait) {
+      let timeout;
+      return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+      };
+    }
+
+    function fetchAddressSuggestions(query) {
+      const cleanQuery = query.trim();
+      if (cleanQuery.length < 3) {
+        hideSuggestions();
+        return;
+      }
+
+      const spinner = document.getElementById('address-loading-spinner');
+      if (spinner) spinner.style.display = 'block';
+
+      // Petición a la API Nominatim de OpenStreetMap
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cleanQuery)}&limit=5&addressdetails=1`)
+        .then(res => res.json())
+        .then(data => {
+          currentSuggestions = data;
+          activeSuggestionIndex = -1;
+          renderSuggestions(data);
+        })
+        .catch(err => {
+          console.error('Error al consultar sugerencias de dirección:', err);
+        })
+        .finally(() => {
+          if (spinner) spinner.style.display = 'none';
+        });
+    }
+
+    function renderSuggestions(suggestions) {
+      const suggestionsDiv = document.getElementById('address-suggestions');
+      if (!suggestionsDiv) return;
+
+      suggestionsDiv.innerHTML = '';
+      if (suggestions.length === 0) {
+        suggestionsDiv.style.display = 'none';
+        return;
+      }
+
+      suggestions.forEach((item, index) => {
+        const suggestionEl = document.createElement('div');
+        suggestionEl.className = 'autocomplete-suggestion-item';
+        
+        // Formatear dirección abreviada si es muy larga
+        const shortName = item.display_name;
+        suggestionEl.innerHTML = `<i class="fa-solid fa-location-dot text-warning" style="font-size: 0.7rem;"></i> <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 90%;">${shortName}</span>`;
+        
+        suggestionEl.addEventListener('click', () => {
+          selectSuggestion(item);
+        });
+        
+        suggestionsDiv.appendChild(suggestionEl);
+      });
+
+      suggestionsDiv.style.display = 'block';
+    }
+
+    function selectSuggestion(item) {
+      const addressInput = document.getElementById('prop-address');
+      const mapsUrlInput = document.getElementById('prop-maps-url');
+
+      if (addressInput) {
+        addressInput.value = item.display_name;
+      }
+
+      // Autogenerar el enlace de búsqueda de Google Maps para comodidad del usuario
+      if (mapsUrlInput) {
+        if (item.lat && item.lon) {
+          // Genera un enlace directo a las coordenadas
+          mapsUrlInput.value = `https://www.google.com/maps/place/${item.lat},${item.lon}`;
+        } else {
+          mapsUrlInput.value = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.display_name)}`;
+        }
+      }
+
+      hideSuggestions();
+      updateCommercialSheet();
+    }
+
+    function hideSuggestions() {
+      const suggestionsDiv = document.getElementById('address-suggestions');
+      if (suggestionsDiv) suggestionsDiv.style.display = 'none';
+      currentSuggestions = [];
+      activeSuggestionIndex = -1;
+    }
+
+    function highlightSuggestion(items) {
+      for (let i = 0; i < items.length; i++) {
+        if (i === activeSuggestionIndex) {
+          items[i].classList.add('active-suggestion');
+          items[i].scrollIntoView({ block: 'nearest' });
+        } else {
+          items[i].classList.remove('active-suggestion');
+        }
+      }
+    }
+
     // Inicialización del DOM
     document.addEventListener('DOMContentLoaded', () => {
       setupDragAndDrop();
       updateCommercialSheet();
+
+      // Configurar eventos para el buscador de direcciones
+      const addressInput = document.getElementById('prop-address');
+      if (addressInput) {
+        addressInput.addEventListener('input', debounce((e) => {
+          fetchAddressSuggestions(e.target.value);
+          updateCommercialSheet(); // Sincronizar el estado comercial
+        }, 400));
+
+        // Eventos de teclado para navegar por la lista de sugerencias
+        addressInput.addEventListener('keydown', (e) => {
+          const suggestionsDiv = document.getElementById('address-suggestions');
+          if (!suggestionsDiv || suggestionsDiv.style.display === 'none') return;
+
+          const items = suggestionsDiv.getElementsByClassName('autocomplete-suggestion-item');
+          if (items.length === 0) return;
+
+          if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            activeSuggestionIndex = (activeSuggestionIndex + 1) % items.length;
+            highlightSuggestion(items);
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            activeSuggestionIndex = (activeSuggestionIndex - 1 + items.length) % items.length;
+            highlightSuggestion(items);
+          } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (activeSuggestionIndex >= 0 && activeSuggestionIndex < items.length) {
+              selectSuggestion(currentSuggestions[activeSuggestionIndex]);
+            }
+          } else if (e.key === 'Escape') {
+            hideSuggestions();
+          }
+        });
+      }
+
+      // Cerrar sugerencias al hacer clic fuera del control
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('#prop-address') && !e.target.closest('#address-suggestions')) {
+          hideSuggestions();
+        }
+      });
 
       // Inicializar base de datos IndexedDB y cargar proyectos
       db.init()
