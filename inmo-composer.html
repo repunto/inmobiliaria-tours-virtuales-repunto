@@ -1295,22 +1295,27 @@
 
     // Actualiza la Ficha Comercial del Inmueble (Panel Derecho Abajo)
     function updateCommercialSheet() {
-      // Capturar inputs
-      appState.property.title = document.getElementById('prop-title').value || 'Título de la Propiedad';
-      appState.property.price = document.getElementById('prop-price').value || '';
+      // Capturar inputs (guardar valores limpios en el estado para evitar sobrescribir los placeholders)
+      appState.property.title = document.getElementById('prop-title').value.trim();
+      appState.property.price = document.getElementById('prop-price').value;
       appState.property.currency = document.getElementById('prop-currency').value;
-      appState.property.location = document.getElementById('prop-location').value || 'Ubicación de la propiedad';
+      appState.property.location = document.getElementById('prop-location').value.trim();
       appState.property.area = document.getElementById('prop-area').value || '0';
       appState.property.rooms = document.getElementById('prop-rooms').value || '0';
       appState.property.baths = document.getElementById('prop-baths').value || '0';
       appState.property.parking = document.getElementById('prop-parking').value || '0';
-      appState.property.description = document.getElementById('prop-description').value || 'Aquí aparecerá la descripción comercial...';
-      appState.property.address = document.getElementById('prop-address').value || '';
-      appState.property.mapsUrl = document.getElementById('prop-maps-url').value || '';
+      appState.property.description = document.getElementById('prop-description').value.trim();
+      appState.property.address = document.getElementById('prop-address').value.trim();
+      appState.property.mapsUrl = document.getElementById('prop-maps-url').value.trim();
 
-      // Actualizar UI
-      document.getElementById('sheet-title').innerText = appState.property.title;
-      document.getElementById('sheet-location').innerHTML = `<i class="fa-solid fa-map-marker-alt text-warning"></i> ${appState.property.location}`;
+      // Actualizar UI de la Ficha Comercial (derecha) aplicando opacidad atenuada si está vacío
+      const sheetTitle = document.getElementById('sheet-title');
+      sheetTitle.innerText = appState.property.title || 'Título de la Propiedad';
+      sheetTitle.style.opacity = appState.property.title ? '1' : '0.5';
+
+      const sheetLocation = document.getElementById('sheet-location');
+      sheetLocation.innerHTML = `<i class="fa-solid fa-map-marker-alt text-warning"></i> ${appState.property.location || 'Ubicación de la propiedad'}`;
+      sheetLocation.style.opacity = appState.property.location ? '1' : '0.5';
       
       // Formato de Moneda
       if (appState.property.price) {
@@ -1324,10 +1329,13 @@
       document.getElementById('badge-rooms').querySelector('span').innerText = `${appState.property.rooms} Hab.`;
       document.getElementById('badge-baths').querySelector('span').innerText = `${appState.property.baths} Baños`;
       document.getElementById('badge-parking').querySelector('span').innerText = `${appState.property.parking} Estac.`;
-      document.getElementById('sheet-desc').innerText = appState.property.description;
+
+      const sheetDesc = document.getElementById('sheet-desc');
+      sheetDesc.innerText = appState.property.description || 'Aquí aparecerá la descripción comercial...';
+      sheetDesc.style.opacity = appState.property.description ? '1' : '0.5';
       
       // Actualizar nombre y ID en la tarjeta de proyectos activos
-      const activeProjectName = document.getElementById('prop-title').value.trim() || 'Sin título';
+      const activeProjectName = appState.property.title || 'Sin título';
       const displayName = document.getElementById('active-project-name-display');
       const displayId = document.getElementById('project-id-display');
       if (displayName) displayName.innerText = activeProjectName;
