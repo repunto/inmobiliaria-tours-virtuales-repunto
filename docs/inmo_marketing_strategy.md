@@ -1,6 +1,6 @@
 # Estrategia de Marketing Inmobiliario Inmersivo y Video Marketing Proptech
 
-Este documento detalla la estrategia de uso de nuestro **Centro de Operaciones de Inmuebles 3D y Vídeo (`inmo-composer.html`)**. Está redactado en un lenguaje claro y accesible para ayudarte a conseguir visitas y reservas recurrentes sin costes de licenciamiento.
+Este documento detalla la estrategia de uso de nuestro **Centro de Operaciones de Inmuebles 3D y Vídeo (`composer.html`)**. Está redactado en un lenguaje claro y accesible para ayudarte a conseguir visitas y reservas recurrentes sin costes de licenciamiento.
 
 ---
 
@@ -13,7 +13,7 @@ Para lograr un resultado profesional y de alta calidad para tus propiedades, sig
    - Asegúrate de encender todas las luces de la propiedad y abrir las cortinas para maximizar la luminosidad natural.
    - Retírate del espacio o escóndete detrás de una pared para no aparecer en la toma.
 2. **Carga en el Compositor y Borradores:**
-   - Abre `inmo-composer.html` haciendo doble clic desde tu ordenador.
+   - Abre `composer.html` haciendo doble clic desde tu ordenador.
    - Verás la cabecera limpia de la herramienta. El indicador discreto en la parte superior te mostrará en verde `● Auto-Guardado` indicando que tus cambios se guardan automáticamente en tu ordenador.
    - Empieza a rellenar la **Ficha Comercial** (título, precio, ubicación, etc.) directamente.
    - Si deseas recuperar un trabajo anterior, empezar un proyecto nuevo o borrar uno existente, haz clic en el botón **"📂 Borradores"** de la cabecera para abrir el panel de control histórico. Al escribir el título de la propiedad, verás que el nombre de lo que estás editando se actualiza allí dentro en tiempo real.

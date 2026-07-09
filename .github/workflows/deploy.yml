@@ -38,8 +38,8 @@ jobs:
       - name: Build Project
         run: npm run build
 
-      - name: Copy inmo-composer.html to build output
-        run: cp inmo-composer.html dist/
+      - name: Copy composer.html to build output
+        run: cp composer.html dist/
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

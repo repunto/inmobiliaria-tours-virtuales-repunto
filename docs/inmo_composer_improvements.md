@@ -1,6 +1,6 @@
 # Propuesta Técnica y Arquitectura de Escalabilidad Proptech
 
-Este documento detalla el análisis de ingeniería y las mejoras estratégicas recomendadas para potenciar el **Centro de Operaciones Inmobiliarias (`inmo-composer.html`)**. El enfoque está dividido en dos fases: **Fase Local** (optimización del flujo de trabajo actual gratuito y offline) y **Fase SaaS** (escalado a una aplicación distribuida para múltiples usuarios).
+Este documento detalla el análisis de ingeniería y las mejoras estratégicas recomendadas para potenciar el **Centro de Operaciones Inmobiliarias (`composer.html`)**. El enfoque está dividido en dos fases: **Fase Local** (optimización del flujo de trabajo actual gratuito y offline) y **Fase SaaS** (escalado a una aplicación distribuida para múltiples usuarios).
 
 ---
 
