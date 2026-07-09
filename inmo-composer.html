@@ -672,11 +672,13 @@
               <label class="form-label">Escena Destino</label>
               <select id="hs-target-scene" class="form-select"></select>
             </div>
-            <div class="col-12" id="hs-field-text" style="display: none;">
-              <label class="form-label">Título del Punto</label>
-              <input type="text" id="hs-title" class="form-control" placeholder="Ej. Encimera de Granito">
-              <label class="form-label mt-2">Detalles / Descripción</label>
-              <textarea id="hs-desc" class="form-control" rows="2" placeholder="Describe materiales, marcas o vistas..."></textarea>
+            <div class="col-12" id="hs-field-title">
+              <label class="form-label">Título del Punto (Texto emergente)</label>
+              <input type="text" id="hs-title" class="form-control text-light bg-secondary border-secondary" placeholder="Ej. Ir al Salón / Lámpara de Diseño">
+            </div>
+            <div class="col-12" id="hs-field-desc" style="display: none;">
+              <label class="form-label">Detalles / Descripción</label>
+              <textarea id="hs-desc" class="form-control text-light bg-secondary border-secondary" rows="2" placeholder="Describe materiales, marcas o vistas..."></textarea>
             </div>
             <div class="col-12">
               <label class="form-label">Icono de FontAwesome</label>
@@ -1794,11 +1796,11 @@
       const type = document.getElementById('hs-type').value;
       if (type === 'navigation') {
         document.getElementById('hs-field-target').style.display = 'block';
-        document.getElementById('hs-field-text').style.display = 'none';
+        document.getElementById('hs-field-desc').style.display = 'none';
         document.getElementById('hs-icon').value = 'arrow-up';
       } else {
         document.getElementById('hs-field-target').style.display = 'none';
-        document.getElementById('hs-field-text').style.display = 'block';
+        document.getElementById('hs-field-desc').style.display = 'block';
         document.getElementById('hs-icon').value = 'info';
       }
     }
@@ -1831,7 +1833,8 @@
           return;
         }
         const targetScene = appState.scenes.find(s => s.id === targetSceneId);
-        hotspot.title = `Ir a: ${targetScene.name}`;
+        const customTitle = document.getElementById('hs-title').value.trim();
+        hotspot.title = customTitle || `Ir a: ${targetScene.name}`;
         hotspot.targetSceneId = targetSceneId;
       } else {
         const title = document.getElementById('hs-title').value.trim();
