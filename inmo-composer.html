@@ -491,13 +491,33 @@
         <div class="card-section">
           <div class="section-title d-flex justify-content-between align-items-center">
             <span><i class="fa-solid fa-camera-retro"></i> Fotos 360° y Espacios de la Propiedad</span>
-            <button class="btn btn-sm btn-gold py-1" onclick="addNewSceneModal()">
-              <i class="fa-solid fa-plus"></i> Añadir Foto
+            <button class="btn btn-sm btn-gold py-1" onclick="document.getElementById('bulk-file-input').click()">
+              <i class="fa-solid fa-plus"></i> Añadir Foto(s)
             </button>
+            <input type="file" id="bulk-file-input" style="display: none;" accept="image/*" multiple onchange="handleBulkFileSelect(event)">
           </div>
 
-          <div id="scenes-list-container" class="mb-3">
-            <p class="small text-muted text-center py-2" id="no-scenes-msg">Aún no has subido fotos 360° de la propiedad. Haz clic en "Añadir Foto".</p>
+          <!-- Arrastre y soltado de archivos integrado en el contenedor de la lista -->
+          <div id="scenes-list-container" class="mb-3 p-2 rounded border border-dashed border-secondary text-center" style="min-height: 80px; transition: all 0.3s; background-color: rgba(255, 255, 255, 0.01);" title="Puedes arrastrar múltiples fotos 360 aquí directamente">
+            <p class="small text-muted text-center py-2 mb-0" id="no-scenes-msg">No has añadido escenas aún. Haz clic en "Añadir Foto(s)" o arrastra tus imágenes 360° aquí.</p>
+          </div>
+
+          <!-- Panel de Configuración de la Habitación Activa -->
+          <div id="active-scene-properties-panel" class="p-2 border border-secondary rounded mb-2 bg-dark" style="display: none; font-size: 0.8rem; border-color: rgba(212, 175, 55, 0.15) !important;">
+            <div class="small fw-bold text-warning mb-2 d-flex align-items-center gap-1">
+              <i class="fa-solid fa-sliders"></i> Ajustes de: <strong id="prop-scene-title-badge" class="text-light">Ninguna</strong>
+            </div>
+            <div class="row g-2 align-items-end">
+              <div class="col-8">
+                <label class="form-label mb-1 text-secondary" style="font-size: 0.75rem;">Nombre Comercial del Espacio</label>
+                <input type="text" id="prop-scene-name" class="form-control form-control-sm text-light bg-secondary border-secondary" placeholder="Ej. Cocina Moderna" oninput="renameActiveScene()">
+              </div>
+              <div class="col-4">
+                <button class="btn btn-sm btn-gold w-100 py-1 d-flex align-items-center justify-content-center gap-1" onclick="setCurrentImageAsInitialView()" title="Fijar la vista actual de la cámara como el punto de inicio para el cliente" style="font-size: 0.75rem; padding: 5px 0;">
+                  <i class="fa-solid fa-camera"></i> Fijar Vista
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -709,57 +729,7 @@
 
   </div>
 
-  <!-- Modal para Añadir Nueva Escena -->
-  <div class="modal fade" id="addSceneModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
-      <div class="modal-content bg-secondary text-light border border-secondary shadow-lg">
-        <div class="modal-header border-bottom border-secondary">
-          <h5 class="modal-title text-warning fw-bold"><i class="fa-solid fa-camera-retro"></i> Nueva Escena 360°</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label">ID de la Escena (Alfanumérico, sin espacios)</label>
-            <input type="text" id="modal-scene-id" class="form-control" placeholder="Ej. fachada_principal">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Nombre Comercial de la Habitación</label>
-            <input type="text" id="modal-scene-name" class="form-control" placeholder="Ej. Fachada Principal">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Imagen Panorámica (Formato Equirrectangular)</label>
-            <div class="drag-drop-box" id="modal-drag-box" onclick="document.getElementById('modal-file-input').click()">
-              <i class="fa-solid fa-cloud-arrow-up"></i>
-              <p class="small mb-1 fw-bold">Arrastra tu foto 360 aquí</p>
-              <p class="text-muted" style="font-size: 0.75rem;">Formatos soportados: JPG, WEBP, PNG</p>
-              <input type="file" id="modal-file-input" style="display: none;" accept="image/*" onchange="handleFileSelect(event)">
-            </div>
-            <p class="text-success small mt-1" id="file-loaded-msg" style="display: none;">
-              <i class="fa-solid fa-circle-check"></i> Imagen cargada con éxito en memoria
-            </p>
-          </div>
-          <div class="row g-2">
-            <div class="col-4">
-              <label class="form-label">Yaw Inicial</label>
-              <input type="number" id="modal-scene-yaw" class="form-control" value="0">
-            </div>
-            <div class="col-4">
-              <label class="form-label">Pitch Inicial</label>
-              <input type="number" id="modal-scene-pitch" class="form-control" value="0">
-            </div>
-            <div class="col-4">
-              <label class="form-label">Hfov Inicial</label>
-              <input type="number" id="modal-scene-hfov" class="form-control" value="75">
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer border-top border-secondary">
-          <button type="button" class="btn btn-sm btn-outline-custom text-light" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn btn-sm btn-gold" onclick="submitNewScene()">Aceptar y Crear</button>
-        </div>
-      </div>
-    </div>
-  </div>
+
 
   <!-- Scripts -->
   <!-- Bootstrap JS Bundle -->
@@ -1099,6 +1069,8 @@
         }
         document.getElementById('pannellum-viewer').innerHTML = '';
         document.getElementById('active-scene-name-badge').innerText = 'Ninguna';
+        const propPanel = document.getElementById('active-scene-properties-panel');
+        if (propPanel) propPanel.style.display = 'none';
       }
       
       updateProjectsDropdown();
@@ -1190,6 +1162,8 @@
         document.getElementById('active-scene-name-badge').innerText = 'Ninguna';
         document.getElementById('hotspot-form-container').style.display = 'none';
         document.getElementById('embed-code-box').style.display = 'none';
+        const propPanel = document.getElementById('active-scene-properties-panel');
+        if (propPanel) propPanel.style.display = 'none';
       }
     }
 
@@ -1234,21 +1208,24 @@
       triggerAutoSave();
     }
 
-    // drag and drop setup para el Modal de Añadir Escenas
+    // Configuración de Arrastre y Soltado (Drag & Drop) de Múltiples Imágenes 360°
     function setupDragAndDrop() {
-      const dropZone = document.getElementById('modal-drag-box');
+      const dropZone = document.getElementById('scenes-list-container');
+      if (!dropZone) return;
       
       ['dragenter', 'dragover'].forEach(eventName => {
         dropZone.addEventListener(eventName, (e) => {
           e.preventDefault();
-          dropZone.classList.add('dragover');
+          dropZone.style.borderColor = 'var(--accent-gold)';
+          dropZone.style.backgroundColor = 'rgba(212, 175, 55, 0.05)';
         }, false);
       });
 
       ['dragleave', 'drop'].forEach(eventName => {
         dropZone.addEventListener(eventName, (e) => {
           e.preventDefault();
-          dropZone.classList.remove('dragover');
+          dropZone.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+          dropZone.style.backgroundColor = 'rgba(255, 255, 255, 0.01)';
         }, false);
       });
 
@@ -1256,114 +1233,136 @@
         const dt = e.dataTransfer;
         const files = dt.files;
         if (files.length > 0) {
-          processImageFile(files[0]);
+          processBulkFiles(files);
         }
       }, false);
     }
 
-    // Manejar archivos desde el explorador normal
-    function handleFileSelect(event) {
-      const file = event.target.files[0];
-      if (file) {
-        processImageFile(file);
+    // Manejar archivos en lote desde el selector normal
+    function handleBulkFileSelect(event) {
+      const files = event.target.files;
+      if (files.length > 0) {
+        processBulkFiles(files);
       }
     }
 
-    // Convertir imagen a Base64 para almacenamiento en el estado
-    function processImageFile(file) {
-      if (!file.type.startsWith('image/')) {
-        alert('Por favor, selecciona un archivo de imagen válido.');
+    // Procesar múltiples imágenes panorámicas e importarlas en lote
+    function processBulkFiles(files) {
+      const validFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+      if (validFiles.length === 0) {
+        alert('Por favor, selecciona archivos de imagen válidos (panoramas en formato JPG, WEBP o PNG).');
         return;
       }
 
-      showLoading(true, 'Procesando y optimizando imagen panorámica...');
+      showLoading(true, `Procesando e importando ${validFiles.length} imágenes...`);
 
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        tempImageBase64 = e.target.result;
-        document.getElementById('file-loaded-msg').style.display = 'block';
-        showLoading(false);
-      };
-      reader.onerror = function() {
-        alert('Error al leer la imagen.');
-        showLoading(false);
-      };
-      reader.readAsDataURL(file);
+      let processedCount = 0;
+      const totalFiles = validFiles.length;
+      let firstAddedSceneId = null;
+
+      function readNextFile(index) {
+        if (index >= totalFiles) {
+          // Finalizar importación
+          renderScenesList();
+          if (firstAddedSceneId) {
+            selectScene(firstAddedSceneId);
+          }
+          triggerAutoSave();
+          showLoading(false);
+          return;
+        }
+
+        const file = validFiles[index];
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+          const base64Data = e.target.result;
+          
+          // Generar nombre e ID amigable a partir del archivo
+          const filename = file.name.substring(0, file.name.lastIndexOf('.')) || 'espacio';
+          const cleanId = 'escena_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+          
+          // Limpiar guiones y capitalizar
+          const cleanName = filename
+            .replace(/[-_]/g, ' ')
+            .replace(/\b\w/g, c => c.toUpperCase());
+
+          const newScene = {
+            id: cleanId,
+            name: cleanName,
+            panoramaBase64: base64Data,
+            initialView: { yaw: 0, pitch: 0, fov: 75 },
+            hotspots: []
+          };
+
+          appState.scenes.push(newScene);
+
+          if (appState.scenes.length === 1) {
+            appState.initialSceneId = cleanId;
+          }
+          if (!firstAddedSceneId) {
+            firstAddedSceneId = cleanId;
+          }
+
+          processedCount++;
+          document.getElementById('loading-text').innerText = `Importando fotos: ${processedCount} de ${totalFiles}...`;
+          
+          // Siguiente archivo en la cola
+          readNextFile(index + 1);
+        };
+
+        reader.onerror = function() {
+          console.error(`Error al leer archivo: ${file.name}`);
+          readNextFile(index + 1);
+        };
+
+        reader.readAsDataURL(file);
+      }
+
+      // Iniciar cola de lectura
+      readNextFile(0);
     }
 
-    // Mostrar modal para añadir escena
-    function addNewSceneModal() {
-      // Limpiar campos
-      document.getElementById('modal-scene-id').value = '';
-      document.getElementById('modal-scene-name').value = '';
-      document.getElementById('file-loaded-msg').style.display = 'none';
-      document.getElementById('modal-scene-yaw').value = '0';
-      document.getElementById('modal-scene-pitch').value = '0';
-      document.getElementById('modal-scene-hfov').value = '75';
-      tempImageBase64 = '';
+    // Renombrar la escena activa en tiempo real desde el input
+    function renameActiveScene() {
+      const activeScene = appState.scenes.find(s => s.id === appState.activeSceneId);
+      if (!activeScene) return;
+
+      const newName = document.getElementById('prop-scene-name').value.trim() || 'Sin título';
+      activeScene.name = newName;
       
-      const modal = new bootstrap.Modal(document.getElementById('addSceneModal'));
-      modal.show();
+      // Actualizar visualizador y textos
+      document.getElementById('active-scene-name-badge').innerText = newName;
+      document.getElementById('prop-scene-title-badge').innerText = newName;
+      
+      // Actualizar el nombre en la lista del panel izquierdo sin perder el foco
+      const sceneTitleEl = document.getElementById(`scene-title-text-${activeScene.id}`);
+      if (sceneTitleEl) {
+        sceneTitleEl.innerText = newName;
+      }
+
+      triggerAutoSave();
     }
 
-    // Submit de Nueva Escena
-    function submitNewScene() {
-      let id = document.getElementById('modal-scene-id').value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
-      let name = document.getElementById('modal-scene-name').value.trim();
-      let yaw = parseFloat(document.getElementById('modal-scene-yaw').value) || 0;
-      let pitch = parseFloat(document.getElementById('modal-scene-pitch').value) || 0;
-      let hfov = parseFloat(document.getElementById('modal-scene-hfov').value) || 75;
+    // Fijar la orientación de cámara actual (Yaw, Pitch, Fov) como vista inicial del espacio
+    function setCurrentImageAsInitialView() {
+      if (!pViewer || !appState.activeSceneId) return;
 
-      if (!id) {
-        alert('El ID de escena es obligatorio y debe ser alfanumérico.');
-        return;
+      const activeScene = appState.scenes.find(s => s.id === appState.activeSceneId);
+      if (!activeScene) return;
+
+      try {
+        const pitch = parseFloat(pViewer.getPitch().toFixed(2));
+        const yaw = parseFloat(pViewer.getYaw().toFixed(2));
+        const fov = parseFloat(pViewer.getHfov().toFixed(2));
+
+        activeScene.initialView = { yaw, pitch, fov };
+        
+        triggerAutoSave();
+        alert(`¡Ángulo de inicio guardado!\n\nCada vez que un cliente entre a "${activeScene.name}", la cámara apuntará en esta dirección.`);
+      } catch (err) {
+        console.error('Error al capturar orientación:', err);
       }
-
-      // Validar ID único
-      if (appState.scenes.find(s => s.id === id)) {
-        alert('Ya existe una escena con este ID. Por favor, utiliza otro.');
-        return;
-      }
-
-      if (!name) {
-        alert('El nombre comercial de la escena es obligatorio.');
-        return;
-      }
-
-      if (!tempImageBase64) {
-        alert('Debes arrastrar o seleccionar una imagen panorámica 360°.');
-        return;
-      }
-
-      // Crear Objeto de Escena
-      const newScene = {
-        id: id,
-        name: name,
-        panoramaBase64: tempImageBase64,
-        initialView: {
-          yaw: yaw,
-          pitch: pitch,
-          fov: hfov
-        },
-        hotspots: []
-      };
-
-      appState.scenes.push(newScene);
-
-      // Si es la primera escena, establecer como predeterminada
-      if (appState.scenes.length === 1) {
-        appState.initialSceneId = id;
-      }
-
-      // Cerrar modal
-      const modalEl = document.getElementById('addSceneModal');
-      const modal = bootstrap.Modal.getInstance(modalEl);
-      modal.hide();
-
-      // Renderizar listas y cargar en visor
-      renderScenesList();
-      selectScene(id);
-      triggerAutoSave();
     }
 
     // Renderizar Lista de Escenas en el Panel Izquierdo
@@ -1372,7 +1371,7 @@
       container.innerHTML = '';
 
       if (appState.scenes.length === 0) {
-        container.innerHTML = '<p class="small text-muted text-center py-2" id="no-scenes-msg">No has añadido escenas aún. Haz clic en "Añadir".</p>';
+        container.innerHTML = '<p class="small text-muted text-center py-2 mb-0" id="no-scenes-msg">No has añadido escenas aún. Haz clic en "Añadir Foto(s)" o arrastra tus imágenes 360° aquí.</p>';
         return;
       }
 
@@ -1387,7 +1386,7 @@
           <div class="d-flex align-items-center gap-2" style="cursor: pointer;" onclick="selectScene('${scene.id}')">
             <i class="fa-solid fa-image text-warning"></i>
             <div>
-              <div class="fw-semibold text-light" style="font-size: 0.85rem;">${scene.name}</div>
+              <div class="fw-semibold text-light" id="scene-title-text-${scene.id}" style="font-size: 0.85rem;">${scene.name}</div>
               <div class="text-muted" style="font-size: 0.7rem;">ID: ${scene.id}</div>
             </div>
           </div>
@@ -1410,13 +1409,27 @@
     // Seleccionar Escena y Renderizar Visor
     function selectScene(sceneId) {
       appState.activeSceneId = sceneId;
+      
+      const scene = appState.scenes.find(s => s.id === sceneId);
+      if (!scene) {
+        const propPanel = document.getElementById('active-scene-properties-panel');
+        if (propPanel) propPanel.style.display = 'none';
+        return;
+      }
+
+      // Re-renderizar lista de escenas para actualizar la clase activa
       renderScenesList();
       renderHotspotsList();
 
-      const scene = appState.scenes.find(s => s.id === sceneId);
-      if (!scene) return;
-
       document.getElementById('active-scene-name-badge').innerText = scene.name;
+
+      // Mostrar y rellenar el panel de propiedades en el panel izquierdo
+      const propPanel = document.getElementById('active-scene-properties-panel');
+      if (propPanel) {
+        propPanel.style.display = 'block';
+        document.getElementById('prop-scene-title-badge').innerText = scene.name;
+        document.getElementById('prop-scene-name').value = scene.name;
+      }
 
       // Destruir visor anterior si existe
       if (pViewer) {
@@ -1540,6 +1553,8 @@
             }
             document.getElementById('pannellum-viewer').innerHTML = '';
             document.getElementById('active-scene-name-badge').innerText = 'Ninguna';
+            const propPanel = document.getElementById('active-scene-properties-panel');
+            if (propPanel) propPanel.style.display = 'none';
           }
         }
 
