@@ -143,8 +143,8 @@
     {
       "id": "terraza",
       "name": "Terraza y Piscina Infinita",
-      "type": "3d-model",
-      "modelUrl": "assets/inmuebles/propiedad-ejemplo/models/terraza.glb",
+      "type": "panorama",
+      "panoramaUrl": "assets/inmuebles/propiedad-ejemplo/panos/terraza.webp",
       "initialView": {
         "yaw": -90,
         "pitch": 5,
