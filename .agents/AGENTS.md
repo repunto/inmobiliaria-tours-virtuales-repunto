@@ -57,3 +57,23 @@ Para evitar la pérdida accidental de datos por recargas de página en el visual
   - **Editando en tiempo real:** Mostrar el nombre activo (`Editando: [Nombre del Proyecto]`) conectado al campo de texto del título y actualizarlo en tiempo real al escribir.
   - **Sincronización del selector:** Asegurar que el selector dropdown de borradores esté sincronizado programáticamente con el ID del proyecto cargado (`selector.value = appState.projectId`).
 
+---
+
+## 🌍 5. Protocolo de Extracción y Modelado de Entorno AI (Google Street View, Google Earth y Limpieza Digital)
+
+Cuando el usuario ingrese una dirección exacta o una URL de Google Maps y solicite el Entorno AI:
+
+1. **Investigación e Inspección (Navegador):**
+   - Utilizar el subagente de navegación (`browser_subagent`) para abrir la dirección en Google Maps.
+   - Navegar a la vista aérea en 3D de **Google Earth / Satellite** y a la vista de calle **Google Street View**.
+   - Capturar pantallas limpias de la fachada del inmueble y de la perspectiva aérea 3D.
+2. **Generación del Entorno Aéreo 3D (Google Earth):**
+   - Llama a `generate_image` enviando las capturas aéreas 3D como referencia (`ImagePaths`).
+   - El prompt debe indicar generar un mapa de sitio tridimensional o modelo de maqueta fotorrealista (estilo "dollhouse" o "3D site mockup") eliminando marcadores, textos y flechas de la carretera.
+3. **Generación del Panorama 360° de la Fachada (Street View):**
+   - Llama a `generate_image` enviando las fotos de Street View de la fachada.
+   - El prompt técnico debe instruir proyectar la fachada en un panorama de 360° equirrectangular.
+   - **Limpieza Digital (Staging del Exterior):** Limpiar la fachada pintando paredes deterioradas, blanqueando imperfecciones, removiendo cables aéreos, postes que tapen la vista principal, coches, personas y marcas de agua de Google.
+4. **Integración en la Ficha Técnica:**
+   - Guardar las imágenes resultantes en la carpeta de recursos de la propiedad.
+   - Insertar la escena exterior generada como la primera escena en el JSON de especificación (`inmo-spec.json`) para servir como punto de partida o "Fachada" interactiva del tour.

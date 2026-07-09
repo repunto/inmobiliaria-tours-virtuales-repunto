@@ -91,6 +91,8 @@ export interface InmoData {
   price?: number;
   currency?: string;
   location?: string;
+  address?: string; // Dirección exacta de la propiedad
+  mapsUrl?: string; // URL de Google Maps/Street View o Earth
   area?: number;
   rooms?: number;
   baths?: number;

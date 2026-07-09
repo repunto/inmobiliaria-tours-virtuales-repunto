@@ -484,6 +484,24 @@
               <label class="form-label">Descripción Comercial (SEO Inmobiliario)</label>
               <textarea id="prop-description" class="form-control" rows="3" placeholder="Redacta los puntos fuertes del inmueble, acabados, vistas y conectividad..." oninput="updateCommercialSheet()"></textarea>
             </div>
+            <div class="col-12 mt-3 pt-2 border-top border-secondary">
+              <div class="small fw-bold text-warning mb-2"><i class="fa-solid fa-earth-americas"></i> Geolocalización e Integración AI</div>
+              <div class="row g-2">
+                <div class="col-12">
+                  <label class="form-label mb-1" style="font-size: 0.75rem;">Dirección Exacta (Nº, Lote, Calle)</label>
+                  <input type="text" id="prop-address" class="form-control form-control-sm text-light bg-secondary border-secondary" placeholder="Ej. Calle del Sol 45, Lote 12, Urbanización Albatros" oninput="updateCommercialSheet()">
+                </div>
+                <div class="col-12">
+                  <label class="form-label mb-1" style="font-size: 0.75rem;">Enlace Google Maps / Street View / Earth</label>
+                  <input type="url" id="prop-maps-url" class="form-control form-control-sm text-light bg-secondary border-secondary" placeholder="Ej. https://www.google.com/maps/place/..." oninput="updateCommercialSheet()">
+                </div>
+                <div class="col-12 mt-2">
+                  <button type="button" class="btn btn-xs btn-outline-warning w-100 py-1 d-flex align-items-center justify-content-center gap-1" onclick="requestAIEnvironment()" style="font-size: 0.7rem;" title="Notificar a la IA para capturar, limpiar y generar el entorno 360° desde Maps/Earth">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Solicitar Entorno Exterior AI (Street View / Earth)
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1087,6 +1105,8 @@
       document.getElementById('prop-baths').value = appState.property.baths || '';
       document.getElementById('prop-parking').value = appState.property.parking || '';
       document.getElementById('prop-description').value = appState.property.description || '';
+      document.getElementById('prop-address').value = appState.property.address || '';
+      document.getElementById('prop-maps-url').value = appState.property.mapsUrl || '';
     }
 
     // Eliminar el proyecto activo actual
@@ -1098,7 +1118,7 @@
             // Limpiar appState y resetear
             appState = {
               projectId: 'project_' + Date.now(),
-              property: { title: '', price: '', currency: 'USD', location: '', area: '', rooms: '', baths: '', parking: '', description: '' },
+              property: { title: '', price: '', currency: 'USD', location: '', area: '', rooms: '', baths: '', parking: '', description: '', address: '', mapsUrl: '' },
               scenes: [],
               initialSceneId: '',
               activeSceneId: ''
@@ -1132,7 +1152,7 @@
     function resetApp() {
       if (confirm('¿Estás seguro de que deseas limpiar todo el progreso actual?')) {
         appState = {
-          property: { title: '', price: '', currency: 'USD', location: '', area: '', rooms: '', baths: '', parking: '', description: '' },
+          property: { title: '', price: '', currency: 'USD', location: '', area: '', rooms: '', baths: '', parking: '', description: '', address: '', mapsUrl: '' },
           scenes: [],
           initialSceneId: '',
           activeSceneId: ''
@@ -1148,6 +1168,8 @@
         document.getElementById('prop-baths').value = '';
         document.getElementById('prop-parking').value = '';
         document.getElementById('prop-description').value = '';
+        document.getElementById('prop-address').value = '';
+        document.getElementById('prop-maps-url').value = '';
 
         // Reset UI
         updateCommercialSheet();
@@ -1179,6 +1201,8 @@
       appState.property.baths = document.getElementById('prop-baths').value || '0';
       appState.property.parking = document.getElementById('prop-parking').value || '0';
       appState.property.description = document.getElementById('prop-description').value || 'Aquí aparecerá la descripción comercial...';
+      appState.property.address = document.getElementById('prop-address').value || '';
+      appState.property.mapsUrl = document.getElementById('prop-maps-url').value || '';
 
       // Actualizar UI
       document.getElementById('sheet-title').innerText = appState.property.title;
@@ -1206,6 +1230,19 @@
       if (displayId) displayId.innerText = `ID: ${appState.projectId.replace('project_', '')}`;
       
       triggerAutoSave();
+    }
+
+    // Solicitar entorno exterior 360° generado por IA
+    function requestAIEnvironment() {
+      const address = document.getElementById('prop-address').value.trim();
+      const mapsUrl = document.getElementById('prop-maps-url').value.trim();
+
+      if (!address && !mapsUrl) {
+        alert('Por favor, rellena al menos la dirección exacta o el enlace de Google Maps antes de solicitar el entorno.');
+        return;
+      }
+
+      alert(`🤖 ¡Solicitud de Entorno AI Recibida!\n\nDirección: ${address || 'Indicada por enlace'}\n\nPasos a seguir:\n1. Asegúrate de que este borrador se haya auto-guardado.\n2. Pídele a tu copiloto Antigravity en el chat de la derecha:\n   "Genera el entorno exterior AI de mi proyecto".\n3. La IA abrirá Google Maps, extraerá las vistas aéreas de Google Earth y de calle de Street View, limpiará digitalmente la fachada y creará la escena 360° exterior de forma automática.`);
     }
 
     // Configuración de Arrastre y Soltado (Drag & Drop) de Múltiples Imágenes 360°
