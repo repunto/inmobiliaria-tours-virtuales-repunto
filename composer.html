@@ -787,7 +787,7 @@
           </div>
           <p class="small text-secondary mb-3">Simula un vuelo de drone de interiores para tus grabaciones de redes sociales.</p>
           
-          <div class="row g-2 mb-3">
+           <div class="row g-2 mb-2">
             <div class="col-7">
               <button class="btn btn-sm btn-blue w-100 py-2" id="btn-auto-rotate" onclick="toggleAutoRotate()">
                 <i class="fa-solid fa-play me-1"></i> Paneo Cinemático
@@ -801,6 +801,11 @@
               </select>
             </div>
           </div>
+
+          <!-- Botón de Grabación Directa -->
+          <button class="btn btn-sm btn-outline-danger w-100 py-2 mb-3" id="btn-record-video" onclick="toggleRecordVideo()" title="Graba el movimiento del lienzo directamente desde tu navegador en un archivo de vídeo">
+            <i class="fa-solid fa-circle text-danger me-1"></i> Grabar y Descargar Vídeo
+          </button>
 
           <div class="d-flex align-items-center justify-content-between p-2 rounded bg-dark border border-secondary mb-3">
             <span class="small text-secondary fw-medium">Relación de Aspecto del Lienzo:</span>
@@ -822,10 +827,50 @@
             <div class="p-3 rounded bg-dark border border-secondary" style="font-size: 0.8rem; line-height: 1.4;">
               <ol class="ps-3 mb-0">
                 <li>Selecciona el formato deseado (Vertical para Reels/TikTok, Horizontal para Youtube).</li>
-                <li>Activa el <strong>Paneo Cinemático</strong>.</li>
-                <li>Usa un grabador de pantalla (<strong>OBS Studio</strong> en PC o la función nativa de tu iPhone/Android).</li>
-                <li>Captura el lienzo en alta definición sin mover el ratón para una fluidez de 60fps.</li>
+                <li>Haz clic en **"Grabar y Descargar Vídeo"**; el visor iniciará el paneo y grabará automáticamente.</li>
+                <li>Pulsa **"Detener y Guardar"** para finalizar la toma y descargar el archivo `.webm` a tu ordenador.</li>
+                <li>*(Opcional)*: Si necesitas resoluciones personalizadas, puedes usar un capturador externo como **OBS Studio** capturando la pantalla.</li>
               </ol>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección 5: Asistente de Imagen AI (Staging, Stitching y Limpieza) -->
+        <div class="card-section border border-warning" style="background-color: rgba(212, 175, 55, 0.02);">
+          <div class="section-title text-warning">
+            <i class="fa-solid fa-brain"></i> Asistente de Imagen AI
+          </div>
+          <p class="small text-secondary mb-3">Solicita procesamiento y mejoras de tus fotos directamente al Copiloto de IA en el chat.</p>
+          
+          <div class="d-flex flex-column gap-2" style="font-size: 0.75rem;">
+            <!-- Opción 1: Unión 360 -->
+            <div class="p-2 rounded bg-dark border border-secondary d-flex align-items-start gap-2">
+              <i class="fa-solid fa-wand-magic-sparkles text-warning mt-1" style="font-size: 0.9rem;"></i>
+              <div>
+                <strong class="text-light">Unión de fotos a 360° (Stitching)</strong>
+                <p class="text-muted mb-1" style="font-size: 0.7rem; line-height: 1.3;">Une fotos planas en un panorama equirrectangular 360° sin distorsiones.</p>
+                <div class="text-warning-emphasis font-monospace" style="font-size: 0.65rem;">Petición en chat: "Une estas fotos en 360"</div>
+              </div>
+            </div>
+            
+            <!-- Opción 2: Limpieza Digital -->
+            <div class="p-2 rounded bg-dark border border-secondary d-flex align-items-start gap-2">
+              <i class="fa-solid fa-broom text-warning mt-1" style="font-size: 0.9rem;"></i>
+              <div>
+                <strong class="text-light">Limpieza Digital (Declutter & Clean)</strong>
+                <p class="text-muted mb-1" style="font-size: 0.7rem; line-height: 1.3;">Elimina cables, desorden, objetos personales y blanquea paredes deterioradas.</p>
+                <div class="text-warning-emphasis font-monospace" style="font-size: 0.65rem;">Petición en chat: "Limpia esta habitación de desorden"</div>
+              </div>
+            </div>
+
+            <!-- Opción 3: Amueblado Virtual -->
+            <div class="p-2 rounded bg-dark border border-secondary d-flex align-items-start gap-2">
+              <i class="fa-solid fa-couch text-warning mt-1" style="font-size: 0.9rem;"></i>
+              <div>
+                <strong class="text-light">Amueblado Virtual (Virtual Staging)</strong>
+                <p class="text-muted mb-1" style="font-size: 0.7rem; line-height: 1.3;">Añade muebles fotorrealistas de diseño minimalista, nórdico o moderno.</p>
+                <div class="text-warning-emphasis font-monospace" style="font-size: 0.65rem;">Petición en chat: "Amuebla esta habitación estilo moderno"</div>
+              </div>
             </div>
           </div>
         </div>
@@ -2165,6 +2210,128 @@
         toggleAutoRotate();
         toggleAutoRotate();
       }
+    }
+
+    // Variables para Grabación de Video
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let isRecording = false;
+
+    // Iniciar / Detener grabación del Canvas del Visor
+    function toggleRecordVideo() {
+      const recordBtn = document.getElementById('btn-record-video');
+      const canvas = document.querySelector('#pannellum-viewer canvas');
+
+      if (!pViewer || !canvas) {
+        alert('Primero debes cargar una escena panorámica en el visor.');
+        return;
+      }
+
+      if (isRecording) {
+        // Detener grabación
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+          mediaRecorder.stop();
+        }
+        return;
+      }
+
+      // Iniciar grabación
+      recordedChunks = [];
+      
+      // Capturamos el flujo del canvas a 30fps
+      let stream;
+      try {
+        stream = canvas.captureStream(30);
+      } catch (err) {
+        console.error('Error al capturar stream de Canvas:', err);
+        alert('Tu navegador no soporta la grabación directa desde el lienzo WebGL.');
+        return;
+      }
+
+      // Probar formatos soportados de video (WebM es universal en Chrome/Firefox)
+      let options = { mimeType: 'video/webm;codecs=vp9' };
+      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+        options = { mimeType: 'video/webm' };
+      }
+
+      try {
+        mediaRecorder = new MediaRecorder(stream, options);
+      } catch (e) {
+        console.error('Error al crear MediaRecorder:', e);
+        alert('No se pudo inicializar el grabador de vídeo.');
+        return;
+      }
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) {
+          recordedChunks.push(e.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        // Detener la rotación automática si estaba activa
+        if (isAutoRotating) {
+          toggleAutoRotate();
+        }
+
+        // Descargar archivo de video
+        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `tour-cinematico-${Date.now()}.webm`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        // UI Reset
+        isRecording = false;
+        recordBtn.innerHTML = '<i class="fa-solid fa-circle text-danger me-1"></i> Grabar y Descargar Vídeo';
+        recordBtn.className = 'btn btn-sm btn-outline-danger w-100 py-2 mb-3';
+      };
+
+      // Iniciar rotación de cámara
+      if (!isAutoRotating) {
+        toggleAutoRotate();
+      }
+
+      mediaRecorder.start();
+      isRecording = true;
+
+      recordBtn.innerHTML = '<i class="fa-solid fa-square text-light me-1"></i> Detener y Guardar';
+      recordBtn.className = 'btn btn-sm btn-danger w-100 py-2 mb-3';
+
+      // Mostrar alerta flotante de grabación
+      showRecordingNotification();
+    }
+
+    // Alerta flotante informativa de grabación activa
+    function showRecordingNotification() {
+      const toast = document.createElement('div');
+      toast.id = 'recording-toast-alert';
+      toast.style.position = 'fixed';
+      toast.style.bottom = '20px';
+      toast.style.right = '20px';
+      toast.style.zIndex = '99999';
+      toast.style.backgroundColor = 'rgba(220, 53, 69, 0.95)';
+      toast.style.color = '#ffffff';
+      toast.style.padding = '12px 20px';
+      toast.style.borderRadius = '8px';
+      toast.style.fontSize = '0.8rem';
+      toast.style.fontWeight = 'bold';
+      toast.style.boxShadow = '0 4px 15px rgba(0,0,0,0.5)';
+      toast.style.border = '1px solid rgba(255,255,255,0.2)';
+      toast.innerHTML = '<i class="fa-solid fa-circle-dot fa-fade me-2 text-warning"></i> GRABANDO VIDEO... (El visor se está moviendo automáticamente. Haz clic en "Detener y Guardar" cuando termine tu toma).';
+      document.body.appendChild(toast);
+
+      const checker = setInterval(() => {
+        if (!isRecording) {
+          clearInterval(checker);
+          const alertBox = document.getElementById('recording-toast-alert');
+          if (alertBox) alertBox.remove();
+        }
+      }, 300);
     }
 
     // Mostrar loading screen
