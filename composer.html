@@ -1141,9 +1141,14 @@
                 </div>
               </div>
 
-              <button class="btn btn-warning w-100 py-2 fw-bold text-dark" onclick="generateAiWorkOrder()">
-                <i class="fa-solid fa-gears me-2"></i> Generar Orden de Trabajo AI
-              </button>
+              <div class="d-flex flex-column gap-2">
+                <button class="btn btn-warning w-100 py-2 fw-bold text-dark" onclick="runLocalAiProcessing()" id="btn-run-local-ai">
+                  <i class="fa-solid fa-wand-magic-sparkles me-2"></i> 🔮 Ejecutar Fusión Local 360°
+                </button>
+                <button class="btn btn-sm btn-outline-warning w-100 py-1" onclick="generateAiWorkOrder()">
+                  <i class="fa-solid fa-gears me-1"></i> Obtener Prompt (Copiar en Chat)
+                </button>
+              </div>
             </div>
             
             <!-- Columna derecha: Ticket & Demo interactiva -->
@@ -2652,6 +2657,99 @@
         aiWrapper.style.display = 'block';
         if (sceneBadge) sceneBadge.style.display = 'none';
       }
+    }
+
+    // Ejecutar procesamiento de IA local usando el servidor de Vite
+    function runLocalAiProcessing() {
+      const fileInput = document.getElementById('ai-image-upload');
+      const files = fileInput.files;
+      const targetRoom = document.getElementById('ai-target-room').value.trim();
+      const type = document.getElementById('ai-op-type').value;
+
+      if (!targetRoom) {
+        alert('Por favor escribe el nombre de la habitación objetivo.');
+        return;
+      }
+
+      if (files.length < 2) {
+        alert('Por favor selecciona al menos 2 imágenes planas de referencia para realizar la costura 360°.');
+        return;
+      }
+
+      // Preparar FormData para subir los archivos
+      const formData = new FormData();
+      formData.append('room', targetRoom);
+      formData.append('op', type);
+      for (let i = 0; i < files.length; i++) {
+        formData.append('images', files[i]);
+      }
+
+      // Mostrar spinner
+      showLoading(true, 'Ejecutando Costura y Fusión de Fotos 360° Localmente...');
+
+      // Enviar petición al endpoint local del Vite Dev Server
+      fetch('/api/process', {
+        method: 'POST',
+        body: formData
+      })
+      .then(res => {
+        if (!res.ok) {
+          return res.json().then(data => {
+            throw new Error(data.error || 'La costura falló en el servidor local.');
+          });
+        }
+        return res.json();
+      })
+      .then(data => {
+        showLoading(false);
+        if (data.success && data.imagePath) {
+          // 1. Crear una nueva escena con la imagen de salida
+          const newSceneId = `scene_${Date.now()}`;
+          const newScene = {
+            id: newSceneId,
+            name: targetRoom,
+            type: 'panorama',
+            panorama: data.imagePath,
+            yaw: 0,
+            pitch: 0,
+            fov: 100, // Campo de visión natural gran angular
+            hotspots: []
+          };
+
+          // Añadir al estado de la aplicación
+          appState.scenes.push(newScene);
+          
+          // Configurar como escena inicial si es la única
+          if (appState.scenes.length === 1) {
+            appState.initialSceneId = newSceneId;
+          }
+
+          // 2. Limpiar input y estado local
+          fileInput.value = '';
+          aiUploadedFiles = [];
+          document.getElementById('ai-upload-status').innerText = 'No hay archivos seleccionados';
+
+          // 3. Auto-guardar borrador en IndexedDB
+          triggerAutoSave();
+
+          // 4. Seleccionar la nueva escena en el visor de inmediato
+          selectScene(newSceneId);
+          renderScenesList();
+          renderHotspotsList();
+
+          // 5. Volver a la pestaña del visor 360° para ver el resultado
+          switchViewerTab('viewer');
+          
+          alert(`¡Éxito! Panorama 360° generado localmente e integrado de forma automática como la escena: "${targetRoom}".`);
+        } else {
+          alert('No se pudo obtener la ruta de la imagen procesada.');
+        }
+      })
+      .catch(err => {
+        showLoading(false);
+        console.error('Error al procesar la costura:', err);
+        alert(`Error al procesar la costura local:\n\n${err.message}\n\nAsegúrate de que estás ejecutando el editor mediante el comando local de Vite y que tienes Python y la librería OpenCV instalada (ej. ejecutando 'pip install opencv-python' en tu terminal).`);
+      });
     }
 
     // Manejar carga de archivos para el prompt AI
