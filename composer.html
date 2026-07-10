@@ -501,6 +501,181 @@
       padding-left: 16px;
       border-left: 3px solid var(--accent-gold);
     }
+
+    /* Estilos del AI Studio */
+    .ai-studio-container {
+      width: 100%;
+      height: 100%;
+      background-color: var(--bg-secondary);
+      padding: 2rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    
+    .ai-studio-header {
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .ai-studio-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 2rem;
+      align-items: start;
+    }
+    
+    @media (max-width: 992px) {
+      .ai-studio-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .ai-studio-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    
+    .ai-studio-card.highlight {
+      border-color: var(--glass-border);
+      background: rgba(22, 28, 36, 0.85);
+    }
+    
+    .upload-zone-ai {
+      border: 2px dashed rgba(212, 175, 55, 0.3);
+      border-radius: 10px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      background: rgba(10, 12, 16, 0.4);
+      transition: all 0.3s ease;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+    }
+    
+    .upload-zone-ai:hover {
+      border-color: var(--accent-gold);
+      background: rgba(212, 175, 55, 0.05);
+      color: #fff;
+    }
+    
+    .upload-zone-ai i {
+      font-size: 2rem;
+      color: var(--accent-gold);
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+    
+    .ai-ticket {
+      background-color: #0d1117;
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-left: 4px solid var(--accent-gold);
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: monospace;
+      color: #38ef7d;
+      font-size: 0.8rem;
+      white-space: pre-wrap;
+      max-height: 180px;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+    
+    /* Comparación Antes/Después */
+    .compare-slider-container {
+      width: 100%;
+      height: 250px;
+      position: relative;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      background: #000;
+    }
+    
+    .compare-img {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      background-size: cover;
+      background-position: center;
+      transition: opacity 0.5s ease;
+    }
+    
+    .compare-img.img-before {
+      z-index: 1;
+    }
+    
+    .compare-img.img-after {
+      z-index: 2;
+      clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+    }
+    
+    .compare-handle {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 4px;
+      background: var(--accent-gold);
+      z-index: 3;
+      transform: translateX(-50%);
+      pointer-events: none;
+      box-shadow: 0 0 10px rgba(212,175,55,0.7);
+    }
+    
+    .compare-handle::after {
+      content: '\f07e';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 30px;
+      height: 30px;
+      background: var(--bg-primary);
+      border: 2px solid var(--accent-gold);
+      border-radius: 50%;
+      color: var(--accent-gold);
+      display: flex;
+      align-items: center;
+      justifyContent: center;
+      font-size: 0.7rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+    
+    .badge-demo {
+      position: absolute;
+      top: 10px;
+      padding: 3px 8px;
+      font-size: 0.6rem;
+      font-weight: bold;
+      border-radius: 4px;
+      z-index: 4;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .badge-before {
+      left: 10px;
+      background: rgba(220, 53, 69, 0.85);
+      color: #fff;
+    }
+    
+    .badge-after {
+      right: 10px;
+      background: rgba(40, 167, 69, 0.85);
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -883,12 +1058,22 @@
     <!-- ========================================== -->
     <div class="panel-viewer">
       
-      <!-- Barra superior de estado -->
-      <div class="viewer-header">
-        <span class="small fw-semibold text-secondary d-flex align-items-center gap-2">
-          <span class="d-inline-block rounded-circle bg-success" style="width: 8px; height: 8px; animation: pulse 1.5s infinite;"></span>
-          Visualizador Activo: <strong id="active-scene-name-badge">Ninguna</strong>
-        </span>
+      <!-- Barra superior con pestañas de modo -->
+      <div class="viewer-header d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+          <div class="btn-group btn-group-sm" role="group">
+            <button type="button" class="btn btn-warning active" id="btn-tab-viewer" onclick="switchViewerTab('viewer')">
+              <i class="fa-solid fa-eye me-1"></i> Visor 360°
+            </button>
+            <button type="button" class="btn btn-outline-warning" id="btn-tab-ai" onclick="switchViewerTab('ai')">
+              <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Estudio AI (Fusión / Staging)
+            </button>
+          </div>
+          <span class="small fw-semibold text-secondary d-flex align-items-center gap-2" id="badge-active-scene-wrapper">
+            <span class="d-inline-block rounded-circle bg-success" style="width: 8px; height: 8px; animation: pulse 1.5s infinite;"></span>
+            Escena: <strong id="active-scene-name-badge">Ninguna</strong>
+          </span>
+        </div>
         <div class="coordinates-badge" id="coords-display">
           PITCH: 0.00° | YAW: 0.00°
         </div>
@@ -900,9 +1085,98 @@
       </div>
 
       <!-- Contenedor del visor -->
-      <div class="viewer-container-wrapper">
+      <div class="viewer-container-wrapper" id="pannellum-viewer-wrapper">
         <div class="viewer-container" id="viewer-container-box">
           <div id="pannellum-viewer"></div>
+        </div>
+      </div>
+
+      <!-- Contenedor de AI Studio (Oculto por defecto) -->
+      <div class="viewer-container-wrapper" id="ai-studio-wrapper" style="display: none; height: 100%;">
+        <div class="ai-studio-container">
+          <div class="ai-studio-header">
+            <h3 class="text-warning mb-1" style="font-family: var(--font-serif);"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Estudio de IA Inmobiliaria</h3>
+            <p class="small text-secondary mb-0">Fusiona planos y fotos inconexas, limpia imperfecciones o amuebla digitalmente tus habitaciones.</p>
+          </div>
+          
+          <div class="ai-studio-grid">
+            <!-- Columna izquierda: Configuración -->
+            <div class="ai-studio-card">
+              <h5 class="text-light mb-3"><i class="fa-solid fa-sliders text-warning me-2"></i>1. Configurar Operación</h5>
+              
+              <div class="mb-3">
+                <label class="form-label small text-secondary">Tipo de Operación de IA:</label>
+                <select id="ai-op-type" class="form-select" onchange="updateAiStudioDemo()">
+                  <option value="stitch">Fusión & Proyección 360° (Acoplamiento de fotos inconexas)</option>
+                  <option value="declutter">Limpieza Digital (Eliminar desorden y reparar paredes)</option>
+                  <option value="staging">Amueblado Virtual (Virtual Staging fotorrealista)</option>
+                </select>
+              </div>
+
+              <!-- Selector de Estilos (para Virtual Staging) -->
+              <div class="mb-3" id="ai-style-selector-group" style="display: none;">
+                <label class="form-label small text-secondary">Estilo de Decoración:</label>
+                <select id="ai-style-type" class="form-select" onchange="updateAiStudioPrompt()">
+                  <option value="moderno">Moderno Vanguardista / Lujo</option>
+                  <option value="minimalista">Minimalista Nórdico</option>
+                  <option value="industrial">Industrial Rústico</option>
+                  <option value="clasico">Clásico Elegante</option>
+                </select>
+              </div>
+
+              <!-- Selector de Habitaciones del Proyecto -->
+              <div class="mb-3">
+                <label class="form-label small text-secondary">Habitación / Espacio Objetivo:</label>
+                <input type="text" id="ai-target-room" class="form-control" placeholder="Ej: Recibidor a Salón / Dormitorio Principal" value="Salón de Honor" oninput="updateAiStudioPrompt()">
+              </div>
+
+              <!-- Zona de subida de imágenes -->
+              <div class="mb-3">
+                <label class="form-label small text-secondary">Fotos de Referencia:</label>
+                <div class="upload-zone-ai" onclick="document.getElementById('ai-image-upload').click()">
+                  <i class="fa-solid fa-cloud-arrow-up"></i>
+                  <span>Arrastra tus fotos planas aquí o haz clic para buscarlas</span>
+                  <div class="small text-muted mt-1" id="ai-upload-status">No hay archivos seleccionados</div>
+                  <input type="file" id="ai-image-upload" multiple style="display: none;" onchange="handleAiStudioUpload(event)">
+                </div>
+              </div>
+
+              <button class="btn btn-warning w-100 py-2 fw-bold text-dark" onclick="generateAiWorkOrder()">
+                <i class="fa-solid fa-gears me-2"></i> Generar Orden de Trabajo AI
+              </button>
+            </div>
+            
+            <!-- Columna derecha: Ticket & Demo interactiva -->
+            <div class="d-flex flex-column gap-3">
+              <!-- Orden de Trabajo Copiable -->
+              <div class="ai-studio-card highlight">
+                <h5 class="text-warning mb-2"><i class="fa-solid fa-ticket me-2"></i>2. Orden de Trabajo Generada</h5>
+                <p class="small text-secondary mb-3">Copia esta orden y pégala en el chat de Antigravity junto con tus fotos cargadas:</p>
+                
+                <div class="ai-ticket" id="ai-ticket-content">[Selecciona archivos y haz clic en "Generar Orden" para ver el prompt]</div>
+                
+                <button class="btn btn-sm btn-outline-warning w-100" id="btn-copy-ai-prompt" onclick="copyAiPrompt()" disabled>
+                  <i class="fa-solid fa-copy me-1"></i> Copiar Prompt y Pegar en el Chat
+                </button>
+              </div>
+
+              <!-- Demo interactiva (Comparación) -->
+              <div class="ai-studio-card">
+                <h6 class="text-light mb-2" id="demo-title-ai">Ejemplo: Fusión de Espacios</h6>
+                <div class="compare-slider-container" id="ai-compare-container" onmousemove="handleCompareSlider(event)" onmouseleave="resetCompareSlider()">
+                  <div class="badge-demo badge-before" id="badge-before-text">Antes (Fotos Planas)</div>
+                  <div class="badge-demo badge-after" id="badge-after-text">Después (Fusión 360)</div>
+                  <!-- Imagen "Antes" -->
+                  <div class="compare-img img-before" id="compare-img-before" style="background-image: url('assets/inmuebles/propiedad-ejemplo/media/floorplan.png'); opacity: 0.85;"></div>
+                  <!-- Imagen "Después" (Filtro clip-path) -->
+                  <div class="compare-img img-after" id="compare-img-after" style="background-image: url('assets/inmuebles/propiedad-ejemplo/media/salon.webp'); clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);"></div>
+                  <!-- Controlador central -->
+                  <div class="compare-handle" id="compare-handle-bar" style="left: 50%;"></div>
+                </div>
+                <p class="small text-muted mt-2 mb-0" style="font-size: 0.7rem; line-height: 1.3;"><i class="fa-solid fa-info-circle me-1"></i> Desliza el cursor sobre la imagen para comparar el resultado antes y después del procesamiento inteligente.</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -2332,6 +2606,199 @@
           if (alertBox) alertBox.remove();
         }
       }, 300);
+    }
+
+    // ==========================================
+    // ESTUDIO DE IA INMOBILIARIA: FUSIÓN & STAGING
+    // ==========================================
+
+    let aiUploadedFiles = [];
+
+    // Cambiar entre Visor y AI Studio
+    function switchViewerTab(tab) {
+      const viewerBtn = document.getElementById('btn-tab-viewer');
+      const aiBtn = document.getElementById('btn-tab-ai');
+      const viewerWrapper = document.getElementById('pannellum-viewer-wrapper');
+      const aiWrapper = document.getElementById('ai-studio-wrapper');
+      const sceneBadge = document.getElementById('badge-active-scene-wrapper');
+
+      if (tab === 'viewer') {
+        viewerBtn.classList.add('active');
+        viewerBtn.classList.remove('btn-outline-warning');
+        viewerBtn.classList.add('btn-warning');
+        
+        aiBtn.classList.remove('active');
+        aiBtn.classList.remove('btn-warning');
+        aiBtn.classList.add('btn-outline-warning');
+        
+        viewerWrapper.style.display = 'block';
+        aiWrapper.style.display = 'none';
+        if (sceneBadge) sceneBadge.style.display = 'flex';
+        
+        // Re-ajustar el visor por si cambió el tamaño
+        if (pViewer) {
+          pViewer.resize();
+        }
+      } else {
+        aiBtn.classList.add('active');
+        aiBtn.classList.remove('btn-outline-warning');
+        aiBtn.classList.add('btn-warning');
+        
+        viewerBtn.classList.remove('active');
+        viewerBtn.classList.remove('btn-warning');
+        viewerBtn.classList.add('btn-outline-warning');
+        
+        viewerWrapper.style.display = 'none';
+        aiWrapper.style.display = 'block';
+        if (sceneBadge) sceneBadge.style.display = 'none';
+      }
+    }
+
+    // Manejar carga de archivos para el prompt AI
+    function handleAiStudioUpload(e) {
+      const files = e.target.files;
+      const statusEl = document.getElementById('ai-upload-status');
+      aiUploadedFiles = [];
+
+      if (files.length === 0) {
+        statusEl.innerText = 'No hay archivos seleccionados';
+        return;
+      }
+
+      for (let i = 0; i < files.length; i++) {
+        aiUploadedFiles.push(files[i].name);
+      }
+
+      statusEl.innerHTML = `<i class="fa-solid fa-circle-check text-success text-success"></i> ${files.length} archivo(s) preparado(s): <span class="text-light">${aiUploadedFiles.join(', ')}</span>`;
+      updateAiStudioPrompt();
+    }
+
+    // Actualizar demostración antes/después del AI Studio
+    function updateAiStudioDemo() {
+      const type = document.getElementById('ai-op-type').value;
+      const titleEl = document.getElementById('demo-title-ai');
+      const beforeText = document.getElementById('badge-before-text');
+      const afterText = document.getElementById('badge-after-text');
+      const imgBefore = document.getElementById('compare-img-before');
+      const imgAfter = document.getElementById('compare-img-after');
+      const styleGroup = document.getElementById('ai-style-selector-group');
+
+      if (type === 'stitch') {
+        titleEl.innerHTML = 'Ejemplo: Fusión de Espacios (Stitching 360)';
+        beforeText.innerText = 'Antes (Planos Inconexos)';
+        afterText.innerText = 'Después (Fusión 360)';
+        imgBefore.style.backgroundImage = "url('assets/inmuebles/propiedad-ejemplo/media/floorplan.png')";
+        imgBefore.style.filter = "none";
+        imgAfter.style.backgroundImage = "url('assets/inmuebles/propiedad-ejemplo/media/salon.webp')";
+        styleGroup.style.display = 'none';
+      } else if (type === 'declutter') {
+        titleEl.innerHTML = 'Ejemplo: Limpieza Digital (Declutter)';
+        beforeText.innerText = 'Antes (Con Desorden)';
+        afterText.innerText = 'Después (Limpio)';
+        imgBefore.style.backgroundImage = "url('assets/inmuebles/propiedad-ejemplo/media/recibidor.webp')";
+        imgBefore.style.filter = "grayscale(90%) sepia(20%) opacity(0.75)";
+        imgAfter.style.backgroundImage = "url('assets/inmuebles/propiedad-ejemplo/media/recibidor.webp')";
+        styleGroup.style.display = 'none';
+      } else if (type === 'staging') {
+        titleEl.innerHTML = 'Ejemplo: Amueblado Virtual (Virtual Staging)';
+        beforeText.innerText = 'Antes (Espacio Vacío)';
+        afterText.innerText = 'Después (Amueblado Premium)';
+        imgBefore.style.backgroundImage = "url('assets/inmuebles/propiedad-ejemplo/media/terraza.webp')";
+        imgBefore.style.filter = "hue-rotate(60deg) opacity(0.8)";
+        imgAfter.style.backgroundImage = "url('assets/inmuebles/propiedad-ejemplo/media/terraza.webp')";
+        styleGroup.style.display = 'block';
+      }
+
+      updateAiStudioPrompt();
+    }
+
+    // Actualizar el prompt dinámicamente
+    function updateAiStudioPrompt() {
+      const type = document.getElementById('ai-op-type').value;
+      const targetRoom = document.getElementById('ai-target-room').value.trim() || '[Espacio Objetivo]';
+      const styleType = document.getElementById('ai-style-type').value;
+      const ticketEl = document.getElementById('ai-ticket-content');
+      
+      let promptText = '';
+      const filesCount = aiUploadedFiles.length;
+      const filesStr = filesCount > 0 ? `adjunto(s) (${aiUploadedFiles.join(', ')})` : '[Carga imágenes de referencia]';
+
+      if (type === 'stitch') {
+        promptText = `[AI-ORDER: STITCH_360]\n`;
+        promptText += `OPERACIÓN: Fusión y Stitching 360° para conectar espacios.\n`;
+        promptText += `ESPACIO OBJETIVO: ${targetRoom}.\n`;
+        promptText += `ARCHIVOS: ${filesStr}.\n`;
+        promptText += `ESTRATEGIA DE FUSIÓN: Toma los archivos planos cargados, analiza su estructura espacial y únelos proyectándolos en un panorama de 360° equirrectangular completo. Completa digitalmente los detalles de conexión donde las fotos no se acoplen con exactitud (por ejemplo, marcos de puertas, techos y suelos continuos), manteniendo los mismos colores, texturas y escala de luz.`;
+      } else if (type === 'declutter') {
+        promptText = `[AI-ORDER: DECLUTTER_360]\n`;
+        promptText += `OPERACIÓN: Limpieza digital y restauración de paredes/suelos.\n`;
+        promptText += `ESPACIO OBJETIVO: ${targetRoom}.\n`;
+        promptText += `ARCHIVOS: ${filesStr}.\n`;
+        promptText += `ESTRATEGIA DE LIMPIEZA: Elimina todos los objetos personales, desorden, cables, logos e imperfecciones en esta escena de 360°. Blanquea y repara las paredes desgastadas o con humedad, y asegura que la estructura, colores y distribución del espacio permanezcan inalterados y limpios.`;
+      } else if (type === 'staging') {
+        promptText = `[AI-ORDER: VIRTUAL_STAGING_360]\n`;
+        promptText += `OPERACIÓN: Amueblado virtual (Virtual Staging).\n`;
+        promptText += `ESTILO: ${styleType.toUpperCase()}.\n`;
+        promptText += `ESPACIO OBJETIVO: ${targetRoom}.\n`;
+        promptText += `ARCHIVOS: ${filesStr}.\n`;
+        promptText += `ESTRATEGIA DE DECORACIÓN: Añade mobiliario fotorrealista de diseño premium en estilo ${styleType} al espacio de la foto 360°. Integra sofás, alfombras, lámparas y mesas de manera natural según la escala y perspectiva de la habitación original. Evita sobrecargar el espacio para mantener una sensación de amplitud y exclusividad.`;
+      }
+
+      ticketEl.innerText = promptText;
+    }
+
+    // Generar la orden y habilitar botón de copiar
+    function generateAiWorkOrder() {
+      updateAiStudioPrompt();
+      const ticketEl = document.getElementById('ai-ticket-content');
+      const copyBtn = document.getElementById('btn-copy-ai-prompt');
+
+      ticketEl.style.color = '#38ef7d';
+      copyBtn.removeAttribute('disabled');
+      
+      alert('¡Orden de trabajo generada con éxito! Haz clic en el botón para copiar el prompt y pegarlo en el chat de Antigravity.');
+    }
+
+    // Copiar prompt al portapapeles
+    function copyAiPrompt() {
+      const text = document.getElementById('ai-ticket-content').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('btn-copy-ai-prompt');
+        btn.innerHTML = '<i class="fa-solid fa-check me-1"></i> ¡Copiado con Éxito!';
+        btn.classList.remove('btn-outline-warning');
+        btn.classList.add('btn-success');
+        
+        setTimeout(() => {
+          btn.innerHTML = '<i class="fa-solid fa-copy me-1"></i> Copiar Prompt y Pegar en el Chat';
+          btn.classList.remove('btn-success');
+          btn.classList.add('btn-outline-warning');
+        }, 3000);
+      });
+    }
+
+    // Control deslizante interactivo de Antes/Después
+    function handleCompareSlider(e) {
+      const container = document.getElementById('ai-compare-container');
+      const handle = document.getElementById('compare-handle-bar');
+      const imgAfter = document.getElementById('compare-img-after');
+      
+      const rect = container.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      let percentage = (x / rect.width) * 100;
+      
+      if (percentage < 0) percentage = 0;
+      if (percentage > 100) percentage = 100;
+
+      handle.style.left = `${percentage}%`;
+      imgAfter.style.clipPath = `polygon(0 0, ${percentage}% 0, ${percentage}% 100%, 0 100%)`;
+    }
+
+    function resetCompareSlider() {
+      const handle = document.getElementById('compare-handle-bar');
+      const imgAfter = document.getElementById('compare-img-after');
+      
+      handle.style.left = '50%';
+      imgAfter.style.clipPath = 'polygon(0 0, 50% 0, 50% 100%, 0 100%)';
     }
 
     // Mostrar loading screen
